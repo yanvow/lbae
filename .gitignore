@@ -1,4 +1,5 @@
 .DS_Store
+.vscode
 data
 notebooks/data_processing/data/
 **/__pycache__/

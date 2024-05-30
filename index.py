@@ -28,6 +28,7 @@ from pages import (
     region_analysis,
     threeD_exploration,
     scRNAseq,
+    lipizones,
 )
 from in_app_documentation.documentation import return_documentation
 from config import basic_config
@@ -211,6 +212,7 @@ def return_validation_layout(main_content, initial_slice=1, brain="brain_1"):
             region_analysis.return_layout(basic_config, initial_slice),
             threeD_exploration.return_layout(basic_config, initial_slice),
             scRNAseq.return_layout(basic_config, initial_slice, brain),
+            lipizones.return_layout(basic_config, initial_slice),
         ]
     )
 
@@ -250,6 +252,9 @@ def render_page_content(pathname, slice_index, brain):
 
     elif pathname == "/gene-data":
         page = scRNAseq.return_layout(basic_config, slice_index, brain)
+
+    elif pathname == "/lipizones":
+        page = lipizones.return_layout(basic_config, slice_index)
 
     else:
         # If the user tries to reach a different page, return a 404 message

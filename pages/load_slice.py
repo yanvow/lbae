@@ -52,6 +52,7 @@ def return_layout(basic_config, slice_index):
                                         dict(label="Warped slices", value="1"),
                                         dict(label="Filtered slices", value="2"),
                                         dict(label="Atlas slices", value="3"),
+                                        dict(label="Lipozones slices", value="4")
                                     ],
                                     id="page-1-card-tabs",
                                     value="2",
@@ -200,6 +201,7 @@ def tab_1_load_image(value_slider, active_tab, display_annotations):
             "1": "warped_data",
             "2": "projection_corrected",
             "3": "atlas",
+            "4": "lipozones",
         }
 
         # Force no annotation for the original data

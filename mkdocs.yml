@@ -49,3 +49,4 @@ nav:
       - region_analysis: pages/region_analysis.md
       - threeD_exploration: pages/threeD_exploration.md
       - scRNAseq: pages/scRNAseq.md
+      - lipizones: pages/lipizones.md

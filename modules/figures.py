@@ -293,6 +293,8 @@ class Figures:
                 zero_out_of_annotation=True,
             )
             array_images = array_projected_images_atlas
+        #elif type_figure == "lipozones":
+        #    array_images = io.imread("data/tiff_files/warped_data.tif")
         else:
             logging.warning('The type of requested array "{}" does not exist.'.format(type_figure))
             return None
@@ -2669,7 +2671,7 @@ class Figures:
                 Defaults to False.
         """
         for idx_slice in range(self._data.get_slice_number()):
-            for type_figure in ["original_data", "warped_data", "projection_corrected", "atlas"]:
+            for type_figure in ["original_data", "warped_data", "projection_corrected", "atlas", "lipozones"]:
                 for display_annotations in [True, False]:
                     # Force no annotation for the original data
                     self._storage.return_shelved_object(

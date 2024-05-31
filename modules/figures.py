@@ -86,6 +86,7 @@ class Figures:
             computes an RGB image instead of a heatmap.
         compute_spectrum_low_res(): Returns the full (low-resolution) spectrum of the requested
             slice.
+        compute_lipizones_per_lipizones(): Computes a figure representing the lipizones.
         compute_spectrum_high_res(): Returns the full (high-resolution) spectrum of the requested
             slice between the two provided m/z boundaries.
         return_empty_spectrum(): Returns an empty spectrum.
@@ -1218,6 +1219,165 @@ class Figures:
             type_image="RGB",
             return_go_image=return_image,
         )
+    
+    def compute_lipizones_per_lipizones(
+        self,
+        slice_index,
+        draw=False,
+        projected_image=True,
+        return_base64_string=False,
+        cache_flask=None,
+    ):
+        """This function 
+
+        Args:
+            
+        """
+
+        logging.info("Starting figure computation for lipizones")
+
+        logging.info("Getting image array")
+
+        RGB_format=True
+        normalize=True
+        log=False
+        apply_transform=False
+        lipid_name=""
+
+        # Compute image with given bounds
+        #image = self.compute_image_per_lipid(
+        #    slice_index,
+        #    lb_mz,
+        #    hb_mz,
+        #    RGB_format=True,
+        #    projected_image=projected_image,
+        #    cache_flask=cache_flask,
+        #)
+
+        logging.info("Entering compute_image_per_lipid")
+
+        # Get image from raw mass spec data
+        image = compute_thread_safe_function(
+            compute_image_using_index_and_image_lookup,
+            cache_flask,
+            self._data,
+            slice_index,
+            800.0,
+            870.0,
+            self._data.get_array_spectra(slice_index),
+            self._data.get_array_lookup_pixels(slice_index),
+            self._data.get_image_shape(slice_index),
+            self._data.get_array_lookup_mz(slice_index),
+            self._data.get_array_cumulated_lookup_mz_image(slice_index),
+            self._data.get_divider_lookup(slice_index),
+            self._data.get_array_peaks_transformed_lipids(slice_index),
+            self._data.get_array_corrective_factors(slice_index).astype(np.float32),
+            apply_transform=apply_transform,
+        )
+        # Log-transform the image if requested
+        if log:
+            image = np.log(image + 1)
+
+        # In case of bug, return None
+        if image is None:
+            return None
+
+        # Normalize the image if requested
+        if normalize:
+            # Normalize across slice if the lipid has been MAIA transformed
+            if (
+                lipid_name,
+                self._data.is_brain_1(slice_index),
+            ) in self.dic_normalization_factors and apply_transform:
+                perc = self.dic_normalization_factors[
+                    (lipid_name, self._data.is_brain_1(slice_index))
+                ]
+                logging.info(
+                    "Normalization made with respect to percentile computed across all slices."
+                )
+            else:
+                # Normalize by 99 percentile
+                perc = np.percentile(image, 99.0)
+            if perc == 0:
+                perc = np.max(image)
+            if perc == 0:
+                perc = 1
+            image = image / perc
+            image = np.clip(0, 1, image)
+
+        # Turn to RGB format if requested
+        if RGB_format:
+            image *= 255
+
+        # Change dtype if normalized and RGB to save space
+        if normalize and RGB_format:
+            image = np.round(image).astype(np.uint8)
+
+        # Project image into cleaned and higher resolution version
+        if projected_image:
+            image = project_image(
+                slice_index, image, self._atlas.array_projection_correspondence_corrected
+            )
+
+        # Compute corresponding figure
+        #fig = self.build_lipid_heatmap_from_image(
+        #    image, return_base64_string=return_base64_string, draw=draw
+        #)
+
+        type_image=None
+        return_go_image=False
+
+        logging.info("Converting image to string")
+
+        # Set optimize to False to gain computation time
+        base64_string = convert_image_to_base64(
+            image, type=type_image, overlay=None, transparent_zeros=True, optimize=False
+        )
+
+        # Either return image directly
+        if return_base64_string:
+            return base64_string
+
+        # Or compute heatmap as go image if needed
+        logging.info("Converting image to go image")
+        final_image = go.Image(
+            visible=True,
+            source=base64_string,
+        )
+
+        # Potentially return the go image directly
+        if return_go_image:
+            return final_image
+
+        # Or build ploty graph
+        fig = go.Figure(final_image)
+
+        # Improve graph layout
+        fig.update_layout(
+            margin=dict(t=0, r=0, b=0, l=0),
+            newshape=dict(
+                fillcolor=dic_colors["blue"], opacity=0.7, line=dict(color="white", width=1)
+            ),
+            xaxis=dict(showgrid=False, zeroline=False),
+            yaxis=dict(showgrid=False, zeroline=False),
+            # Do not specify height for now as plotly is buggued and resets if switching pages
+            # height=500,
+        )
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update(layout_coloraxis_showscale=False)
+
+        # Set how the image should be annotated
+        if draw:
+            fig.update_layout(dragmode="drawclosedpath")
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+        logging.info("Returning figure")
+
+        return fig
 
     def compute_spectrum_low_res(self, slice_index, annotations=None):
         """This function returns the full (low-resolution) spectrum of the requested slice.

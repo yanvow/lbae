@@ -122,7 +122,6 @@ def return_layout(basic_config, slice_index):
                         },
                     ),
                 ],
-                # ),
             ),
             dbc.Modal(
                 children=[

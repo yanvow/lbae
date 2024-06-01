@@ -12,29 +12,29 @@ body {
 /*===== TYPOGRAPHY =====*/
 
 /* Highlight text in white for documentation */
-em{
+em {
   color: white;
-  font-style: normal;   
+  font-style: normal;
 }
 
 /* Unvisited link */
 a:link {
   color: #1fafc8;
-  font-style: italic;   
+  font-style: italic;
 }
 
 /* Visited link */
 a:visited {
   color: #1fafc8;
-  font-style: italic;   
+  font-style: italic;
 }
 
 /* Hover link */
 a:hover {
   color: #1fafc8;
   font-style: italic;
-  text-decoration: underline;    
-} 
+  text-decoration: underline;
+}
 
 /* Title in white for documentation and main page */
 h1 {
@@ -43,16 +43,18 @@ h1 {
 }
 
 /* Subtitles in blue */
-h2, h3 {
+h2,
+h3 {
   color: #1fafc8;
 }
 
 /* Text and lists in dimmed white  */
-p, li {
+p,
+li {
   color: rgb(221, 221, 221);
   text-align: justify;
   font-size: larger;
-} 
+}
 
 
 /*===== APP SIDEBAR =====*/
@@ -71,7 +73,7 @@ p, li {
 
 /* Change color of selected pills */
 .nav-pills .nav-link.active,
-.nav-pills .show > .nav-link {
+.nav-pills .show>.nav-link {
   background-color: #1fafc8;
 }
 
@@ -79,6 +81,7 @@ p, li {
 .nav-link:hover {
   color: #1fafc8;
 }
+
 .nav-link:focus {
   color: #dee2e6;
 }
@@ -86,10 +89,10 @@ p, li {
 /* Adjust main logo position */
 .sidebar-header .nav-link {
   padding-left: 0.1rem;
-} 
+}
 
 /* Adjust other icon position */
-#sidebar-page-3{
+#sidebar-page-3 {
   padding-right: 1.2rem;
 }
 
@@ -133,23 +136,22 @@ p, li {
 .fixed-aspect-ratio {
   position: relative;
   width: 100%;
-  padding-bottom: min(
-    72%,
-    100vh
-  ); /* when max-height = 100vh is reached, need to block stretching*/
+  padding-bottom: min(72%,
+      100vh);
+  /* when max-height = 100vh is reached, need to block stretching*/
   float: left;
   height: 0;
 }
 
 /* Used to wrap dcc.Loading component with transparent background */
-.loading-wrapper > div {
+.loading-wrapper>div {
   visibility: visible !important;
 }
 
 /*===== MANTINE CORRECTIONS =====*/
 
 /* Correct label position for Mantine Switch */
-div.mantine-Switch-root.mantine-16ttirm > label {
+div.mantine-Switch-root.mantine-16ttirm>label {
   margin-top: 0.16rem;
 }
 
@@ -171,7 +173,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-3-dropdown-red > div > div {
+#page-3-dropdown-red>div>div {
   background-color: #2b2e33;
 }
 
@@ -189,7 +191,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-3-dropdown-green > div > div {
+#page-3-dropdown-green>div>div {
   background-color: #2b2e33;
 }
 
@@ -207,7 +209,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-3-dropdown-blue > div > div {
+#page-3-dropdown-blue>div>div {
   background-color: #2b2e33;
 }
 
@@ -227,7 +229,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-5-dropdown-red > div > div {
+#page-5-dropdown-red>div>div {
   background-color: #2b2e33;
 }
 
@@ -245,7 +247,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-5-dropdown-green > div > div {
+#page-5-dropdown-green>div>div {
   background-color: #2b2e33;
 }
 
@@ -263,7 +265,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-5-dropdown-blue > div > div {
+#page-5-dropdown-blue>div>div {
   background-color: #2b2e33;
 }
 
@@ -281,7 +283,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color: #ced4da;
 }
 
-#page-5-dropdown-lipid > div > div {
+#page-5-dropdown-lipid>div>div {
   background-color: #2b2e33;
 }
 
@@ -299,8 +301,9 @@ div.mantine-Switch-root.mantine-16ttirm > label {
   color:antiquewhite;
 } */
 
-.has-value.Select--single>.Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single>.Select-control .Select-value .Select-value-label{
-  color:antiquewhite;
+.has-value.Select--single>.Select-control .Select-value .Select-value-label,
+.has-value.is-pseudo-focused.Select--single>.Select-control .Select-value .Select-value-label {
+  color: antiquewhite;
 }
 
 
@@ -310,7 +313,8 @@ div.mantine-Switch-root.mantine-16ttirm > label {
 .VirtualizedSelectFocusedOption {
   background-color: rgba(80, 189, 218, 0.5);
 }
-.is-focused:not(.is-open) > .Select-control {
+
+.is-focused:not(.is-open)>.Select-control {
   border-color: rgba(80, 189, 218, 0.5);
 }
 
@@ -328,7 +332,7 @@ div.mantine-Switch-root.mantine-16ttirm > label {
 }
 
 /* Better centering */
-div.toast-header > strong {
+div.toast-header>strong {
   margin-left: 3rem;
   margin-right: 3rem;
 }
@@ -342,22 +346,22 @@ div.toast-header > strong {
 }
 
 /* Invisible backdrop for drawer */
-body > div.fade.offcanvas-backdrop.show {
+body>div.fade.offcanvas-backdrop.show {
   opacity: 0;
 }
 
 /* Remove drawer header */
-#page-2-drawer-high-res-spectra > div.offcanvas-header {
+#page-2-drawer-high-res-spectra>div.offcanvas-header {
   display: none;
 }
 
 /* Same */
-#page-2-drawer-low-res-spectra > div.offcanvas-header {
+#page-2-drawer-low-res-spectra>div.offcanvas-header {
   display: none;
 }
 
 /* Same */
-#page-4-drawer-region-selection > div.offcanvas-header {
+#page-4-drawer-region-selection>div.offcanvas-header {
   display: none;
 }
 
@@ -392,6 +396,7 @@ body > div.fade.offcanvas-backdrop.show {
 div.item-top {
   transform: translate(0, 10px);
 }
+
 div.item-top {
   visibility: hidden;
 }
@@ -443,78 +448,93 @@ div.item:focus:active {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
+
   5%,
   95% {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
+
   10%,
   59% {
     box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em,
       -0.173em -0.812em 0 -0.44em, -0.256em -0.789em 0 -0.46em,
       -0.297em -0.775em 0 -0.477em;
   }
+
   20% {
     box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em,
       -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em,
       -0.749em -0.34em 0 -0.477em;
   }
+
   38% {
     box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em,
       -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em,
       -0.82em -0.09em 0 -0.477em;
   }
+
   100% {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
 }
+
 @keyframes load6 {
   0% {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
+
   5%,
   95% {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
+
   10%,
   59% {
     box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em,
       -0.173em -0.812em 0 -0.44em, -0.256em -0.789em 0 -0.46em,
       -0.297em -0.775em 0 -0.477em;
   }
+
   20% {
     box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em,
       -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em,
       -0.749em -0.34em 0 -0.477em;
   }
+
   38% {
     box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em,
       -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em,
       -0.82em -0.09em 0 -0.477em;
   }
+
   100% {
     box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
       0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
   }
 }
+
 @-webkit-keyframes round {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
   }
+
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
+
 @keyframes round {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
   }
+
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);

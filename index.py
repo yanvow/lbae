@@ -68,7 +68,11 @@ def return_main_content():
             dcc.Store(id="page-2-selected-lipid-1", data=-1),
             dcc.Store(id="page-2-selected-lipid-2", data=-1),
             dcc.Store(id="page-2-selected-lipid-3", data=-1),
-            dcc.Store(id="page-2-last-selected-lipids", data=[]),
+            # Record the lipizones selected in page 4
+            dcc.Store(id="page-2-selected-lipizones-1", data=-1),
+            dcc.Store(id="page-2-selected-lipizones-2", data=-1),
+            dcc.Store(id="page-2-selected-lipizones-3", data=-1),
+            dcc.Store(id="page-2-last-selected-lipizones", data=[]),
             # Record the lipids selected in page 4
             dcc.Store(id="page-4-selected-lipid-1", data=empty_lipid_list),
             dcc.Store(id="page-4-selected-lipid-2", data=empty_lipid_list),
@@ -299,6 +303,7 @@ def hide_slider(pathname):
         "/region-analysis",
         "/3D-exploration",
         "/gene-data",
+        "/lipizones",
     ]
 
     # Set the content according to the current pathname
@@ -351,6 +356,24 @@ def hide_useless_slider(brain, value_1, value_2):
     elif brain == "brain_2":
         value_2 = value_1 + data.get_slice_list(indices="brain_1")[-1]
         return "mt-2 mr-5 ml-2 mb-1 w-50 d-none", "mt-2 mr-5 ml-2 mb-1 w-50", value_1, value_2
+    
+@app.callback(
+    Output("main-brain", "data"),
+    Input("url", "pathname"),
+    State("main-brain", "data"),
+)
+def disable_brain_1_for_lipizones(pathname, brain):
+    #if pathname is lipizones disable the blain_1 main-brain
+    if pathname == "/lipizones":
+        return [
+            {"value": "brain_1", "label": "Brain 1", "disabled": True},
+            {"value": "brain_2", "label": "Brain 2"}
+        ]
+    else:
+        return [
+            {"value": "brain_1", "label": "Brain 1"},
+            {"value": "brain_2", "label": "Brain 2"}
+        ]
 
 
 app.clientside_callback(

@@ -52,7 +52,7 @@ def return_layout(basic_config, slice_index):
                                 "height": "3rem",
                             },
                             children=dcc.Graph(
-                                id="page-2-graph-lipizones",
+                                id="page-6-graph-lipizones",
                                 config=basic_config
                                 | {
                                     "toImageButtonOptions": {
@@ -92,7 +92,7 @@ def return_layout(basic_config, slice_index):
                                     align="flex-start",
                                     children=[
                                         dmc.MultiSelect(
-                                            id="page-2-dropdown-lipizones",
+                                            id="page-6-dropdown-lipizones",
                                             data=storage.return_shelved_object(
                                                 "annotations",
                                                 "lipizones_options",
@@ -115,7 +115,7 @@ def return_layout(basic_config, slice_index):
                                         ),
                                         dmc.Button(
                                             children="Display as RGB",
-                                            id="page-2-rgb-button",
+                                            id="page-6-rgb-button",
                                             variant="filled",
                                             color="cyan",
                                             radius="md",
@@ -126,7 +126,7 @@ def return_layout(basic_config, slice_index):
                                         ),
                                         dmc.Button(
                                             children="Display as colormap",
-                                            id="page-2-colormap-button",
+                                            id="page-6-colormap-button",
                                             variant="filled",
                                             color="cyan",
                                             radius="md",
@@ -140,13 +140,13 @@ def return_layout(basic_config, slice_index):
                             ],
                         ),
                         dmc.Text(
-                            id="page-2-badge-input",
+                            id="page-6-badge-input",
                             children="Current input: " + "m/z boundaries",
                             class_name="position-absolute",
                             style={"right": "1%", "top": "1em"},
                         ),
                         dmc.Badge(
-                            id="page-2-badge-lipizones-1",
+                            id="page-6-badge-lipizones-1",
                             children="name-lipizones-1",
                             color="red",
                             variant="filled",
@@ -154,7 +154,7 @@ def return_layout(basic_config, slice_index):
                             style={"right": "1%", "top": "4em"},
                         ),
                         dmc.Badge(
-                            id="page-2-badge-lipizones-2",
+                            id="page-6-badge-lipizones-2",
                             children="name-lipizones-2",
                             color="teal",
                             variant="filled",
@@ -162,7 +162,7 @@ def return_layout(basic_config, slice_index):
                             style={"right": "1%", "top": "6em"},
                         ),
                         dmc.Badge(
-                            id="page-2-badge-lipizones-3",
+                            id="page-6-badge-lipizones-3",
                             children="name-lipizones-3",
                             color="blue",
                             variant="filled",
@@ -181,7 +181,7 @@ def return_layout(basic_config, slice_index):
                         #    children=[
                         #        dmc.Button(
                         #            children="Download image",
-                        #            id="page-2-download-image-button",
+                        #            id="page-6-download-image-button",
                         #            variant="filled",
                         #            disabled=False,
                         #            color="cyan",
@@ -193,7 +193,7 @@ def return_layout(basic_config, slice_index):
                         #        ),
                         #    ],
                         #),
-                        #dcc.Download(id="page-2-download-data"),
+                        #dcc.Download(id="page-6-download-data"),
                     ],
                 ),
             ],
@@ -209,397 +209,92 @@ def return_layout(basic_config, slice_index):
 # ==================================================================================================
 
 
-#@app.callback(
-#    Output("page-2-graph-lipizones", "figure"),
-#    Output("page-2-badge-input", "children"),
-#    Input("main-slider", "data"),
-#    Input("page-2-selected-lipizones-1", "data"),
-#    Input("page-2-selected-lipizones-2", "data"),
-#    Input("page-2-selected-lipizones-3", "data"),
-#    State("page-2-lower-bound", "value"),
-#    State("page-2-upper-bound", "value"),
-#    State("page-2-badge-input", "children"),
-#)
-#def page_2_plot_graph_heatmap_mz_selection(
-#    slice_index, 
-#    lipizones_1_index,
-#    lipizones_2_index,
-#    lipizones_3_index,
-#    lb,
-#    hb,
-#    graph_input
-#):
-#
-#    logging.info("Entering function to plot heatmap or RGB depending on lipizones selection")
-#
-#    # Find out which input triggered the function
-#    id_input = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-#
-#    # If a lipizones selection has been done
-#    if (
-#        id_input == "page-2-selected-lipizones-1"
-#        or id_input == "page-2-selected-lipizones-2"
-#        or id_input == "page-2-selected-lipizones-3"
-#        or id_input == "page-2-rgb-button"
-#        or id_input == "page-2-colormap-button"
-#        or (
-#            (id_input == "main-slider" or id_input == "page-2-toggle-apply-transform")
-#            and (
-#                graph_input == "Current input: " + "Lipizones selection colormap"
-#                or graph_input == "Current input: " + "Lipizones selection RGB"
-#            )
-#        )
-#    ):
-#        if lipizones_1_index >= 0 or lipizones_2_index >= 0 or lipizones_3_index >= 0:
-#             
-#            ll_lipizones_names = [
-#                [
-#                    "level"
-#                    + "_"
-#                    + data.get_annotations().iloc[index]["level"]
-#                    + "_"
-#                    + data.get_annotations().iloc[index]["value"]
-#                ]
-#                if index != -1
-#                else None
-#                for index in [lipizones_1_index, lipizones_2_index, lipizones_3_index]
-#            ]
-#             
-#            # Check if the current plot must be a heatmap
-#            if (
-#                id_input == "page-2-colormap-button"
-#                or (
-#                    id_input == "main-slider"
-#                    and graph_input == "Current input: " + "Lipizones selection colormap"
-#                )
-#                or (
-#                    id_input == "page-2-toggle-apply-transform"
-#                    and graph_input == "Current input: " + "Lipizones selection colormap"
-#                )
-#            ):
-#                return (
-#                    figures.compute_heatmap_per_lipizones_selection(
-#                        slice_index,
-#                        ll_lipizones_names=ll_lipizones_names,
-#                        cache_flask=cache_flask,
-#                    ),
-#                    "Current input: " + "Lipizones selection colormap",
-#                )
-#
-#            # Or if the current plot must be an RGB image
-#            elif (
-#                id_input == "page-2-rgb-button"
-#                or (
-#                    id_input == "main-slider"
-#                    and graph_input == "Current input: " + "Lipizones selection RGB"
-#                )
-#                or (
-#                    id_input == "page-2-toggle-apply-transform"
-#                    and graph_input == "Current input: " + "Lipizones selection RGB"
-#                )
-#            ):
-#                return (
-#                    figures.compute_rgb_image_per_lipizones_selection(
-#                        slice_index,
-#                        ll_lipizones_names=ll_lipizones_names,
-#                        cache_flask=cache_flask,
-#                    ),
-#                    "Current input: " + "Lipizones selection RGB",
-#                )
-#            
-#            # Plot RBG By default
-#            else:
-#                logging.info("Right before calling the graphing function")
-#                return (
-#                    figures.compute_rgb_image_per_lipizones_selection(
-#                        slice_index,
-#                        ll_lipizones_names=ll_lipizones_names,
-#                        cache_flask=cache_flask,
-#                    ),
-#                    "Current input: " + "Lipizones selection RGB",
-#                )
-#        else:
-#            # No lipizones has been selected, return image from boundaries
-#            return (
-#                    figures.compute_heatmap_per_mz(
-#                        slice_index, 
-#                        lb, 
-#                        hb, 
-#                        cache_flask=cache_flask
-#                    ),
-#                    "Current input: " + "m/z boundaries",
-#                )  
-#         
-#    # If no trigger, the page has just been loaded, so load new figure with default parameters
-#    else:
-#        return dash.no_update
-#
-#@app.callback(
-#    Output("page-2-badge-lipizones-1", "children"),
-#    Output("page-2-badge-lipizones-2", "children"),
-#    Output("page-2-badge-lipizones-3", "children"),
-#    Output("page-2-selected-lipizones-1", "data"),
-#    Output("page-2-selected-lipizones-2", "data"),
-#    Output("page-2-selected-lipizones-3", "data"),
-#    Output("page-2-badge-lipizones-1", "class_name"),
-#    Output("page-2-badge-lipizones-2", "class_name"),
-#    Output("page-2-badge-lipizones-3", "class_name"),
-#    Input("page-2-dropdown-lipizones", "value"),
-#    Input("page-2-badge-lipizones-1", "class_name"),
-#    Input("page-2-badge-lipizones-2", "class_name"),
-#    Input("page-2-badge-lipizones-3", "class_name"),
-#    Input("main-slider", "data"),
-#    State("page-2-selected-lipizones-1", "data"),
-#    State("page-2-selected-lipizones-2", "data"),
-#    State("page-2-selected-lipizones-3", "data"),
-#    State("page-2-badge-lipizones-1", "children"),
-#    State("page-2-badge-lipizones-2", "children"),
-#    State("page-2-badge-lipizones-3", "children"),
-#)
-#def page_2_add_toast_selection(
-#    l_lipizones_names,
-#    class_name_badge_1,
-#    class_name_badge_2,
-#    class_name_badge_3,
-#    slice_index,
-#    lipizones_1_index,
-#    lipizones_2_index,
-#    lipizones_3_index,
-#    header_1,
-#    header_2,
-#    header_3,
-#):
-#    """This callback adds the selected lipizones to the selection."""
-#
-#    logging.info("Entering function to update lipizones data")
-#
-#    # Find out which input triggered the function
-#    id_input = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-#
-#    # if page-2-dropdown-lipizones is called while there's no lipizones name defined, it means the page
-#    # just got loaded
-#    if len(id_input) == 0 or (id_input == "page-2-dropdown-lipizones" and l_lipizones_names is None):
-#        return "", "", "", -1, -1, -1, "d-none", "d-none", "d-none"  # , None
-#
-#    # If one or several lipizones have been deleted
-#    if l_lipizones_names is not None:
-#        if len(l_lipizones_names) < len(
-#            [x for x in [lipizones_1_index, lipizones_2_index, lipizones_3_index] if x != -1]
-#        ):
-#            logging.info("One or several lipizones have been deleter. Cleaning lipizones badges now.")
-#            for idx_header, header in enumerate([header_1, header_2, header_3]):
-#                found = False
-#                for lipizones_name in l_lipizones_names:
-#                    if lipizones_name == header:
-#                        found = True
-#                if not found:
-#                    if idx_header == 0:
-#                        header_1 = ""
-#                        lipizones_1_index = -1
-#                        class_name_badge_1 = "d-none"
-#                    if idx_header == 1:
-#                        header_2 = ""
-#                        lipizones_2_index = -1
-#                        class_name_badge_2 = "d-none"
-#                    if idx_header == 2:
-#                        header_3 = ""
-#                        lipizones_3_index = -1
-#                        class_name_badge_3 = "d-none"
-#
-#            return (
-#                header_1,
-#                header_2,
-#                header_3,
-#                lipizones_1_index,
-#                lipizones_2_index,
-#                lipizones_3_index,
-#                class_name_badge_1,
-#                class_name_badge_2,
-#                class_name_badge_3,
-#            )
-#    # Otherwise, update selection or add lipizones
-#    if (
-#        id_input == "page-2-dropdown-lipizones" and l_lipizones_names is not None
-#    ) or id_input == "main-slider":
-#
-#        # If a new slice has been selected
-#        if id_input == "main-slider":
-#
-#            # for each lipizones, get lipizones name, structure and cation
-#            for header in [header_1, header_2, header_3]:
-#
-#                if len(header) > 2:
-#                    _, level, lipotype = header.split(" ")
-#
-#                    # Find lipizones location
-#                    l_lipizones_loc_temp = (
-#                        data.get_lipizones()
-#                        .index[
-#                            (data.get_lipizones()["level"] == level)
-#                            & (data.get_lipizones()["lipotype"] == lipotype)
-#                        ]
-#                        .tolist()
-#                    )
-#                    l_lipizones_loc = [
-#                        l_lipizones_loc_temp[i]
-#                        for i, x in enumerate(
-#                            data.get_lipizones().iloc[l_lipizones_loc_temp]["slice"] == slice_index
-#                        )
-#                        if x
-#                    ]
-#
-#                    # Fill list with first annotation that exists if it can't find one for the
-#                    # current slice
-#                    if len(l_lipizones_loc) == 0:
-#                        l_lipizones_loc = l_lipizones_loc_temp[:1]
-#
-#                    # Record location and lipizones name
-#                    lipizones_index = l_lipizones_loc[0]
-#
-#                    # If lipizones has already been selected before, replace the index
-#                    if header_1 == header:
-#                        lipizones_1_index = lipizones_index
-#                    elif header_2 == header:
-#                        lipizones_2_index = lipizones_index
-#                    elif header_3 == header:
-#                        lipizones_3_index = lipizones_index
-#
-#            logging.info("Returning updated lipizones data")
-#            return (
-#                header_1,
-#                header_2,
-#                header_3,
-#                lipizones_1_index,
-#                lipizones_2_index,
-#                lipizones_3_index,
-#                class_name_badge_1,
-#                class_name_badge_2,
-#                class_name_badge_3,
-#            )
-#
-#        # If lipizones have been added from dropdown menu
-#        elif id_input == "page-2-dropdown-lipizones":
-#            # Get the lipizones name and structure
-#            _, level, lipotype = l_lipizones_names[-1].split(" ")
-#
-#            # Find lipizones location
-#            l_lipizones_loc = (
-#                data.get_lipizones()
-#                .index[
-#                    (data.get_lipizones()["level"] == level)
-#                    & (data.get_lipizones()["slice"] == slice_index)
-#                    & (data.get_lipizones()["lipotype"] == lipotype)
-#                ]
-#                .tolist()
-#            )
-#
-#            # If several lipizones correspond to the selection, we have a problem...
-#            if len(l_lipizones_loc) > 1:
-#                logging.warning("More than one lipizones corresponds to the selection")
-#                l_lipizones_loc = [l_lipizones_loc[-1]]
-#
-#            if len(l_lipizones_loc) < 1:
-#                logging.warning("No lipizones annotation exist. Taking another slice annotation")
-#                l_lipizones_loc = (
-#                    data.get_lipizones()
-#                    .index[
-#                        (data.get_lipizones()["level"] == level)
-#                        & (data.get_lipizones()["lipotype"] == lipotype)
-#                    ]
-#                    .tolist()
-#                )[:1]
-#                # return dash.no_update
-#
-#            # Record location and lipizones name
-#            lipizones_index = l_lipizones_loc[0]
-#            lipizones_string = "level " + level + " " + lipotype
-#
-#            change_made = False
-#
-#            # If lipizones has already been selected before, replace the index
-#            if header_1 == lipizones_string:
-#                lipizones_1_index = lipizones_index
-#                change_made = True
-#            elif header_2 == lipizones_string:
-#                lipizones_2_index = lipizones_index
-#                change_made = True
-#            elif header_3 == lipizones_string:
-#                lipizones_3_index = lipizones_index
-#                change_made = True
-#
-#            # If it's a new lipizones selection, fill the first available header
-#            if lipizones_string not in [header_1, header_2, header_2]:
-#
-#                # Check first slot available
-#                if class_name_badge_1 == "d-none":
-#                    header_1 = lipizones_string
-#                    lipizones_1_index = lipizones_index
-#                    class_name_badge_1 = "position-absolute"
-#                elif class_name_badge_2 == "d-none":
-#                    header_2 = lipizones_string
-#                    lipizones_2_index = lipizones_index
-#                    class_name_badge_2 = "position-absolute"
-#                elif class_name_badge_3 == "d-none":
-#                    header_3 = lipizones_string
-#                    lipizones_3_index = lipizones_index
-#                    class_name_badge_3 = "position-absolute"
-#                else:
-#                    logging.warning("More than 3 lipizones have been selected")
-#                    return dash.no_update
-#                change_made = True
-#
-#            if change_made:
-#                logging.info(
-#                    "Changes have been made to the lipizones selection or indexation,"
-#                    + " propagating callback."
-#                )
-#                return (
-#                    header_1,
-#                    header_2,
-#                    header_3,
-#                    lipizones_1_index,
-#                    lipizones_2_index,
-#                    lipizones_3_index,
-#                    class_name_badge_1,
-#                    class_name_badge_2,
-#                    class_name_badge_3,
-#                    # None,
-#                )
-#            else:
-#                return dash.no_update
-#
-#    return dash.no_update
-#
-#
-#@app.callback(
-#    Output("page-2-rgb-button", "disabled"),
-#    Output("page-2-colormap-button", "disabled"),
-#    Input("page-2-selected-lipizones-1", "data"),
-#    Input("page-2-selected-lipizones-2", "data"),
-#    Input("page-2-selected-lipizones-3", "data"),
-#)
-#def page_2_active_download(
-#    lipizones_1_index, 
-#    lipizones_2_index, 
-#    lipizones_3_index
-#):
-#    """This callback is used to toggle on/off the display rgb and colormap buttons."""
-#
-#    # Get the current lipizones selection
-#    l_lipizones_indexes = [
-#        x for x in [lipizones_1_index, lipizones_2_index, lipizones_3_index] if x is not None and x != -1
-#    ]
-#    # If lipizones has been selected from the dropdown, activate button
-#    if len(l_lipizones_indexes) > 0:
-#        return False, False
-#    else:
-#        return True, True
+@app.callback(
+   Output("page-6-graph-lipizones", "figure"),
+   Input("main-slider", "data"),
+   Input("page-6-badge-input", "children"),
+   Input("page-6-badge-lipizones-1", "children"),
+   Input("page-6-badge-lipizones-2", "children"),
+   Input("page-6-badge-lipizones-3", "children"),
+)
+def page_6_plot_graph_heatmap_mz_selection(
+   slice_index, 
+   graph_input,
+   lipizones_1_name,
+   lipizones_2_name,
+   lipizones_3_name,
+):
+    
+    if lipizones_1_name == "" and lipizones_2_name == "" and lipizones_3_name == "":
+        return figures.compute_heatmap_per_mz(slice_index, 800, 802, cache_flask=cache_flask)
+
+    if graph_input == "Current input: " + "m/z boundaries":
+        print("YANIS m/z", slice_index)
+        return figures.compute_heatmap_per_mz(slice_index, 800, 802, cache_flask=cache_flask)
+    elif graph_input == "Current input: " + "Lipizones selection colormap":
+        ll_lipizones_names = [[lipizones_1_name], [lipizones_2_name], [lipizones_3_name]]
+        print("YANIS colormap", ll_lipizones_names)
+        return figures.compute_heatmap_per_lipizones_selection(slice_index, ll_lipizones_names=ll_lipizones_names)
+    else:
+        ll_lipizones_names = [[lipizones_1_name], [lipizones_2_name], [lipizones_3_name]]
+        print("YANIS rgb", ll_lipizones_names)
+        return figures.compute_rgb_image_per_lipizones_selection(slice_index, ll_lipizones_names=ll_lipizones_names)
+        
+
+@app.callback(
+    Output("page-6-badge-lipizones-1", "children"),
+    Output("page-6-badge-lipizones-2", "children"),
+    Output("page-6-badge-lipizones-3", "children"),
+    Output("page-6-badge-lipizones-1", "class_name"),
+    Output("page-6-badge-lipizones-2", "class_name"),
+    Output("page-6-badge-lipizones-3", "class_name"),
+    Output("page-6-rgb-button", "disabled"),
+    Output("page-6-colormap-button", "disabled"),
+    Output("page-6-badge-input", "children"),
+    Input("page-6-dropdown-lipizones", "value"),
+    Input("page-6-rgb-button", "n_clicks"),
+    Input("page-6-colormap-button", "n_clicks"),
+)
+def update_badges(selected_lipids, rgb_button, colormap_button):
+
+    input_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    bagde_input = "Current input: " + "m/z boundaries"
+
+    if input_id == "page-6-rgb-button":
+        bagde_input = "Current input: " + "Lipizones selection RGB"
+    elif input_id == "page-6-colormap-button":
+        bagde_input = "Current input: " + "Lipizones selection colormap"
+
+    if selected_lipids is None:
+        selected_lipids = []
+
+    badge_classes = ["d-none", "d-none", "d-none"]
+    badge_texts = ["", "", ""]
+
+    for i, lipid in enumerate(selected_lipids):
+        badge_classes[i] = "position-absolute"
+        badge_texts[i] = lipid
+
+    button_disabled = True
+
+    if len(selected_lipids) > 0:
+        button_disabled = False
+        if input_id == "page-6-dropdown-lipizones":
+            bagde_input = "Current input: " + "Lipizones selection RGB"
+
+    return (
+        badge_texts[0], badge_texts[1], badge_texts[2], 
+        badge_classes[0], badge_classes[1], badge_classes[2], 
+        button_disabled, button_disabled, 
+        bagde_input
+        )
 
 #clientside_callback(
 #    """
 #    function(n_clicks){
 #        if(n_clicks > 0){
-#            domtoimage.toBlob(document.getElementById('page-2-graph-lipizones'))
+#            domtoimage.toBlob(document.getElementById('page-6-graph-lipizones'))
 #                .then(function (blob) {
 #                    window.saveAs(blob, 'lipizones_plot.png');
 #                }
@@ -607,7 +302,7 @@ def return_layout(basic_config, slice_index):
 #        }
 #    }
 #    """,
-#    Output("page-2-download-image-button", "n_clicks"),
-#    Input("page-2-download-image-button", "n_clicks"),
+#    Output("page-6-download-image-button", "n_clicks"),
+#    Input("page-6-download-image-button", "n_clicks"),
 #)
 #"""This clientside callback is used to download the current heatmap."""

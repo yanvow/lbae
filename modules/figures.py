@@ -10,6 +10,7 @@ from the MALDI imaging, and the Allen Brain Atlas, as well as the mapping betwee
 
 # Standard modules
 import numpy as np
+import pandas as pd
 import logging
 from modules.tools.misc import logmem
 import plotly.graph_objects as go
@@ -87,8 +88,6 @@ class Figures:
         compute_spectrum_low_res(): Returns the full (low-resolution) spectrum of the requested
             slice.
         compute_heatmap_per_lipizones_selection(): Computes a heatmap of the sum of expression of the
-            requested lipizones in the requested slice.
-        compute_rgb_array_per_lipizones_selection(): Computes a numpy RGB array of expression of the
             requested lipizones in the requested slice.
         compute_rgb_image_per_lipizones_selection(): Similar to compute_heatmap_per_lipizones_selection, but
             computes an RGB image instead of a heatmap.
@@ -1434,47 +1433,166 @@ class Figures:
     def compute_heatmap_per_lipizones_selection(
         self,
         slice_index,
-        draw=False,
-        projected_image=True,
         return_base64_string=False,
         ll_lipizones_names=None,
-        cache_flask=None,
     ):
-        """This function 
 
-        Args:
-            
-        """
+        logging.info("Compute heatmap per lipizones selection")
 
-        logging.info("Starting figure computation for lipizones")
+        # Start from empty image and add selected lipizones
+        # * Caution: array must be int, float gets badly converted afterwards
+        image = np.zeros(self._atlas.image_shape, dtype=np.int32)
 
-        logging.info("Getting image array")
+        if ll_lipizones_names is None:
+            return image
 
+        # Loop over lipizones
+        for l_lipizones_name in ll_lipizones_names:
+            if l_lipizones_name is None:
+                continue
+            for lipizones_name in l_lipizones_name:
+
+                # Compute expression image per lipizones
+                image_temp = self.compute_image_per_lipizones(
+                    slice_index,
+                    lipizones_name=lipizones_name,
+                )
+                image += image_temp
+
+        # Compute corresponding figure
+        fig = self.build_lipizones_heatmap_from_image(image, return_base64_string=return_base64_string)
 
         return fig
     
     def compute_rgb_image_per_lipizones_selection(
         self,
         slice_index,
-        normalize_independently=True,
-        log=False,
         return_image=False,
-        apply_transform=False,
-        projected_image=True,
         ll_lipizones_names=None,
         return_base64_string=False,
-        cache_flask=None,
     ):
-        """This function 
 
-        Args:
-            
-        """
+        logging.info("Started RGB image computation for slice " + str(slice_index) + logmem())
 
-        logging.info("Starting figure computation for lipizones")
+        logging.info("Acquiring array_image for slice " + str(slice_index) + logmem())
 
-        logging.info("Getting image array")
+        # Start from empty image and add selected lipizones
+        # * Caution: array must be int, float gets badly converted afterwards
+        image = np.zeros(self._atlas.image_shape, dtype=np.int32)
 
+        if ll_lipizones_names is None:
+            return image
+
+        # Loop over lipizones
+        for l_lipizones_name in ll_lipizones_names:
+            if l_lipizones_name is None:
+                continue
+            for lipizones_name in l_lipizones_name:
+
+                # Compute expression image per lipizones
+                image_temp = self.compute_image_per_lipizones(
+                    slice_index,
+                    lipizones_name=lipizones_name,
+                )
+                image += image_temp
+
+        logging.info("Returning fig for slice " + str(slice_index) + logmem())
+
+        # Build the correspondig figure
+        return self.build_lipizones_heatmap_from_image(
+            image,
+            return_base64_string=return_base64_string,
+            draw=False,
+            type_image="RGB",
+            return_go_image=return_image,
+        )
+    
+    def compute_image_per_lipizones(
+        self,
+        slice_index,
+        projected_image=True,
+        lipizones_name="",
+    ):
+       
+        logging.info("Entering compute_image_per_lipizones")
+
+        image = np.zeros(
+            self._atlas.image_shape
+            if projected_image
+            else self._data.get_image_shape(slice_index), 
+            dtype=np.int32
+        )
+
+        if lipizones_name == "":
+            return image
+
+        df = self._data.get_lipizones()
+        df = df[df["Section"] == slice_index]
+        df = df[df["lipotype"] == lipizones_name]
+
+        for _, row in df.iterrows():
+            image[row["y_index"], row["z_index"]] = int(row["level"] * 10000 + row["value"])
+
+        return image
+    
+    def build_lipizones_heatmap_from_image(
+        self,
+        image,
+        return_base64_string=False,
+        draw=False,
+        type_image=None,
+        return_go_image=False,
+    ):
+
+        logging.info("Converting image to string")
+
+        # Set optimize to False to gain computation time
+        base64_string = convert_image_to_base64(
+            image, type=type_image, overlay=None, transparent_zeros=True, optimize=False
+        )
+
+        # Either return image directly
+        if return_base64_string:
+            return base64_string
+
+        # Or compute heatmap as go image if needed
+        logging.info("Converting image to go image")
+        final_image = go.Image(
+            visible=True,
+            source=base64_string,
+        )
+
+        # Potentially return the go image directly
+        if return_go_image:
+            return final_image
+
+        # Or build ploty graph
+        fig = go.Figure(final_image)
+
+        # Improve graph layout
+        fig.update_layout(
+            margin=dict(t=0, r=0, b=0, l=0),
+            newshape=dict(
+                fillcolor=dic_colors["blue"], opacity=0.7, line=dict(color="white", width=1)
+            ),
+            xaxis=dict(showgrid=False, zeroline=False),
+            yaxis=dict(showgrid=False, zeroline=False),
+            # Do not specify height for now as plotly is buggued and resets if switching pages
+            # height=500,
+        )
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update(layout_coloraxis_showscale=False)
+
+        # Set how the image should be annotated
+        if draw:
+            fig.update_layout(dragmode="drawclosedpath")
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+        logging.info("Returning figure")
 
         return fig
 

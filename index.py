@@ -68,11 +68,7 @@ def return_main_content():
             dcc.Store(id="page-2-selected-lipid-1", data=-1),
             dcc.Store(id="page-2-selected-lipid-2", data=-1),
             dcc.Store(id="page-2-selected-lipid-3", data=-1),
-            # Record the lipizones selected in page 4
-            dcc.Store(id="page-2-selected-lipizones-1", data=-1),
-            dcc.Store(id="page-2-selected-lipizones-2", data=-1),
-            dcc.Store(id="page-2-selected-lipizones-3", data=-1),
-            dcc.Store(id="page-2-last-selected-lipizones", data=[]),
+            dcc.Store(id="page-2-last-selected-lipids", data=[]),
             # Record the lipids selected in page 4
             dcc.Store(id="page-4-selected-lipid-1", data=empty_lipid_list),
             dcc.Store(id="page-4-selected-lipid-2", data=empty_lipid_list),
@@ -359,21 +355,26 @@ def hide_useless_slider(brain, value_1, value_2):
     
 @app.callback(
     Output("main-brain", "data"),
+    Output("main-brain", "value"),
     Input("url", "pathname"),
-    State("main-brain", "data"),
+    State("main-brain", "value")
 )
 def disable_brain_1_for_lipizones(pathname, brain):
     #if pathname is lipizones disable the blain_1 main-brain
     if pathname == "/lipizones":
-        return [
+        return ([
             {"value": "brain_1", "label": "Brain 1", "disabled": True},
             {"value": "brain_2", "label": "Brain 2"}
-        ]
+        ],
+        "brain_2"
+        )
     else:
-        return [
+        return ([
             {"value": "brain_1", "label": "Brain 1"},
             {"value": "brain_2", "label": "Brain 2"}
-        ]
+        ],
+        brain
+        )
 
 
 app.clientside_callback(

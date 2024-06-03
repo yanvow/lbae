@@ -245,8 +245,8 @@ class MaldiData:
         )
 
         # Load lipizones for brain 2
-        self._df_lipizones = pd.read_csv(path_lipizones + "coordinates_and_lipizones.csv", index_col=0)
-        self._df_lipizones['slice'] = [int(x.split('_')[0].replace('section', '')) for x in self._df_lipizones.index.values]
+        self._df_lipizones = pd.read_csv(path_lipizones + "coordinates_and_lipizones.csv")
+        self._df_lipizones.rename(columns={'Unnamed: 0':'id'}, inplace=True)
         self._df_lipizones["level"] = self._df_lipizones.lipotype.apply(lambda x: x.split("_")[1])
         self._df_lipizones["value"] = self._df_lipizones.lipotype.apply(lambda x: x.split("_")[2])
 
@@ -920,8 +920,9 @@ class MaldiData:
             (list): List of lipizones.
         """
 
-        return [            {       
-                "label": lipotype.replace(".0", ""),
+        return [            
+            {       
+                "label": "level " + level + " " + lipotype,
                 "value": "level " + level + " " + lipotype,
                 "group": "level " + level,
             }

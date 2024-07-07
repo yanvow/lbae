@@ -44,7 +44,7 @@ def return_layout(basic_config, slice_index):
                     dmc.Center(
                         style={"background-color": "#1d1c1f"},
                         children=dmc.Group(
-                            class_name="mt-1",
+                            className="mt-1",
                             children=[
                                 dmc.SegmentedControl(
                                     data=[
@@ -52,28 +52,27 @@ def return_layout(basic_config, slice_index):
                                         dict(label="Warped slices", value="1"),
                                         dict(label="Filtered slices", value="2"),
                                         dict(label="Atlas slices", value="3"),
-                                        dict(label="Lipozones slices", value="4")
                                     ],
                                     id="page-1-card-tabs",
                                     value="2",
                                     radius="sm",
-                                    color="cyan",
+                                    c="cyan",
                                 ),
                                 dmc.Switch(
                                     id="page-1-toggle-annotations",
                                     label="Annotations",
                                     checked=False,
-                                    color="cyan",
+                                    c="cyan",
                                     radius="xl",
                                     size="sm",
-                                    class_name="ml-1",
+                                    className="ml-1",
                                 ),
                                 dmc.Button(
                                     "Display 3D slice distribution",
                                     id="page-1-modal-button",
                                     n_clicks=0,
-                                    class_name="ml-5",
-                                    color="cyan",
+                                    className="ml-5",
+                                    c="cyan",
                                 ),
                             ],
                         ),
@@ -111,9 +110,9 @@ def return_layout(basic_config, slice_index):
                         "Hovered region: ",
                         id="page-1-graph-hover-text",
                         size="lg",
-                        align="center",
-                        color="cyan",
-                        class_name="mt-5",
+                        ta="center",
+                        c="cyan",
+                        className="mt-5",
                         weight=500,
                         style={
                             "width": "100%",
@@ -221,7 +220,7 @@ def tab_1_load_image(value_slider, active_tab, display_annotations):
 
 
 @app.callback(
-    Output("page-1-graph-hover-text", "class_name"),
+    Output("page-1-graph-hover-text", "className"),
     Input("page-1-card-tabs", "value"),
 )
 def page_1_visibilty_hover(active_tab):

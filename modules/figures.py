@@ -973,6 +973,71 @@ class Figures:
 
         return fig
 
+    def lipizones_figure(
+            self,
+            lipizones,
+            slice_index,
+        ):
+        """This function takes a list of lipizones and a slice index, and returns a figure of the
+        lipizones expressed in the slice.
+
+        Args:
+            lipizones (list): The list of lipizones to be displayed.
+            slice_index (int): The index of the requested slice.
+
+        Returns:
+            (go.Figure): A Plotly figure representing the requested slice image of the requested
+                type.
+        """
+
+        # Define the size of the image
+        img_size = 500
+
+        # Initialize the RGB image array with white background
+        final_image = np.ones((img_size, img_size, 3), dtype=np.uint8) * 255
+
+        # Define a color map for the selected lipizones
+        color_map = {
+            lipizone: [np.random.randint(0, 256), np.random.randint(0, 256), np.random.randint(0, 256)]
+            for lipizone in lipizones
+        }
+
+        # Get all lipizones data
+        df_all = self._data.get_lipizones()
+        df_all = df_all[df_all["Section"] == slice_index - 32]
+
+        for lipizone in lipizones:
+            df = df_all[df_all["lipotype"] == lipizone]
+            color = color_map[lipizone]
+
+            for _, row in df.iterrows():
+                y, z = row["y_index"], row["z_index"]
+                if 0 <= y < img_size and 0 <= z < img_size:
+                    final_image[y, z] = color
+
+        # Convert the image to a format Plotly can understand
+        fig = go.Figure(go.Image(z=final_image))
+
+        # Improve graph layout
+        fig.update_layout(
+            margin=dict(t=0, r=0, b=0, l=0),
+            xaxis=dict(showgrid=False, zeroline=False),
+            yaxis=dict(showgrid=False, zeroline=False),
+            width=500,
+            height=500,
+        )
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update(layout_coloraxis_showscale=False)
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+        logging.info("Returning figure")
+
+        return fig
+
     def compute_heatmap_per_lipid_selection(
         self,
         slice_index,
@@ -1459,6 +1524,8 @@ class Figures:
                 )
                 image += image_temp
 
+        print("YANIS: nb zeros", np.count_nonzero(image))
+
         # Compute corresponding figure
         fig = self.build_lipizones_heatmap_from_image(image, return_base64_string=return_base64_string)
 
@@ -1527,11 +1594,11 @@ class Figures:
             return image
 
         df = self._data.get_lipizones()
-        df = df[df["Section"] == slice_index]
+        df = df[df["Section"] == slice_index - 32]
         df = df[df["lipotype"] == lipizones_name]
 
         for _, row in df.iterrows():
-            image[row["y_index"], row["z_index"]] = int(row["level"] * 10000 + row["value"])
+            image[row["y_index"], row["z_index"]] = int(row["level"]) * 10000 + int(float(row["value"]))
 
         return image
     
@@ -1593,6 +1660,195 @@ class Figures:
         fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
         fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
         logging.info("Returning figure")
+
+        return fig
+    
+    def compute_3D_volume_figure_for_lipizones(
+        self,
+        name_lipizones_1="",
+        name_lipizones_2="",
+        name_lipizones_3="",
+        set_id_regions=None,
+        decrease_dimensionality_factor=6,
+        structure_guided_interpolation=True,
+        brain_1=False,
+    ):
+        
+        logging.info("Starting 3D volume computation")
+        # Get subsampled array of annotations
+        array_annotation = self._storage.return_shelved_object(
+            "figures/3D_page",
+            "arrays_annotation",
+            force_update=False,
+            compute_function=self.get_array_of_annotations,
+            decrease_dimensionality_factor=decrease_dimensionality_factor,
+        )
+
+        # Get subsampled array of borders for each region
+        array_atlas_borders = np.zeros(array_annotation.shape, dtype=np.float32)
+
+        if set_id_regions is not None:
+            list_id_regions = np.array(list(set_id_regions), dtype=np.int64)
+        else:
+            list_id_regions = None
+
+        # Shelving this function is useless as it takes less than 0.1s to compute after
+        # first compilation
+        array_atlas_borders = fill_array_borders(
+            array_annotation,
+            keep_structure_id=list_id_regions,
+            decrease_dimensionality_factor=decrease_dimensionality_factor,
+        )
+
+        logging.info("Computed basic structure array")
+        
+        ll_array_data = []
+
+        for name_lipid in [name_lipizones_1, name_lipizones_2, name_lipizones_3]:
+            l_array_data = []
+            for j in range(1, 33):
+                l_array_data.append(self.compute_image_per_lipizones(j, lipizones_name=name_lipid))
+            ll_array_data.append(l_array_data)
+
+        # Average array of expression over lipid
+        l_array_data_avg = []
+        for slice_index in range(
+            len(self._data.get_slice_list(indices="brain_1" if brain_1 else "brain_2"))
+        ):
+            n = 0
+            avg = 0
+            for i in range(3):  # * number of lipids is hardcoded
+                s = ll_array_data[i][slice_index]
+                if s is None:
+                    s = 0
+                elif s.size == 1:
+                    if np.isnan(s):
+                        s = 0
+                else:
+                    n += 1
+                avg += s
+
+            # In case there's no data for the current slice, set the average to 0
+            if n == 0:
+                n = 1
+            l_array_data_avg.append(avg / n)
+        logging.info("Averaged expression over all lipids")
+
+        # Get the 3D array of expression and coordinates
+        array_x, array_y, array_z, array_c = self.compute_array_coordinates_3D(
+            l_array_data_avg, high_res=False, brain_1=brain_1
+        )
+
+        logging.info("Computed array of expression in original space")
+
+        # Compute the rescaled array of expression for each slice averaged over projected lipids
+        array_slices = np.copy(array_atlas_borders)
+        array_for_avg = np.full_like(array_atlas_borders, 1)
+        array_x_scaled = array_x * 1000000 / self._atlas.resolution / decrease_dimensionality_factor
+        array_y_scaled = array_y * 1000000 / self._atlas.resolution / decrease_dimensionality_factor
+        array_z_scaled = array_z * 1000000 / self._atlas.resolution / decrease_dimensionality_factor
+
+        array_slices = fill_array_slices(
+            array_x_scaled,
+            array_y_scaled,
+            array_z_scaled,
+            np.array(array_c),
+            array_slices,
+            array_for_avg,
+            limit_value_inside=-1.99999,
+        )
+
+        logging.info("Filled basic structure array with array of expression")
+
+        # Get the corresponding coordinates
+        X, Y, Z = np.mgrid[
+            0 : array_atlas_borders.shape[0]
+            / 1000
+            * 25
+            * decrease_dimensionality_factor : array_atlas_borders.shape[0]
+            * 1j,
+            0 : array_atlas_borders.shape[1]
+            / 1000
+            * 25
+            * decrease_dimensionality_factor : array_atlas_borders.shape[1]
+            * 1j,
+            0 : array_atlas_borders.shape[2]
+            / 1000
+            * 25
+            * decrease_dimensionality_factor : array_atlas_borders.shape[2]
+            * 1j,
+        ]
+        logging.info("Built arrays of coordinates")
+        if set_id_regions is not None:
+            x_min, x_max, y_min, y_max, z_min, z_max = crop_array(array_annotation, list_id_regions)
+            array_annotation = array_annotation[
+                x_min : x_max + 1, y_min : y_max + 1, z_min : z_max + 1
+            ]
+            array_slices = array_slices[x_min : x_max + 1, y_min : y_max + 1, z_min : z_max + 1]
+            X = X[x_min : x_max + 1, y_min : y_max + 1, z_min : z_max + 1]
+            Y = Y[x_min : x_max + 1, y_min : y_max + 1, z_min : z_max + 1]
+            Z = Z[x_min : x_max + 1, y_min : y_max + 1, z_min : z_max + 1]
+            logging.info("Cropped the figure to only keep areas in which lipids are expressed")
+
+        # Compute an array containing the lipid expression interpolated for every voxel
+        array_interpolated = fill_array_interpolation(
+            array_annotation,
+            array_slices,
+            divider_radius=16,
+            limit_value_inside=-1.99999,
+            structure_guided=structure_guided_interpolation,
+        )
+        logging.info("Finished interpolation between slices")
+
+        # Get root figure
+        root_data = self._storage.return_shelved_object(
+            "figures/3D_page",
+            "volume_root",
+            force_update=False,
+            compute_function=self.compute_3D_root_volume,
+        )
+
+        logging.info("Building final figure")
+
+        # Build figure
+        fig = go.Figure(
+            data=[
+                go.Volume(
+                    x=X.flatten(),
+                    y=Y.flatten(),
+                    z=Z.flatten(),
+                    value=array_interpolated.flatten(),
+                    isomin=0.01,
+                    isomax=1.5,
+                    opacityscale=[
+                        [-0.11, 0.00],
+                        [0.01, 0.0],
+                        [0.5, 0.05],
+                        [2.5, 0.7],
+                    ],
+                    surface_count=10,
+                    colorscale="viridis",
+                ),
+                root_data,
+            ]
+        )
+
+        # Hide grey background
+        fig.update_layout(
+            margin=dict(t=0, r=0, b=0, l=0),
+            scene=dict(
+                xaxis=dict(backgroundcolor="rgba(0,0,0,0)"),
+                yaxis=dict(backgroundcolor="rgba(0,0,0,0)"),
+                zaxis=dict(backgroundcolor="rgba(0,0,0,0)"),
+            ),
+        )
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+
+        logging.info("Done computing 3D volume figure")
 
         return fig
 
@@ -2049,6 +2305,10 @@ class Figures:
             )
             for i, name_lipid in enumerate([name_lipid_1, name_lipid_2, name_lipid_3])
         ]
+
+        print("YANIS: shape", len(ll_array_data))
+        print("YANIS: shape", len(ll_array_data[0]))
+        print("YANIS: shape", ll_array_data[0][0].shape)
 
         if set_progress is not None:
             set_progress((50, "Averaging expression for each lipid"))

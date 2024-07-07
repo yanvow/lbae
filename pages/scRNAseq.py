@@ -249,7 +249,7 @@ def return_layout(basic_config, slice_index, brain):
                                             variant="filled",
                                             radius="md",
                                             size="xs",
-                                            color="cyan",
+                                            c="cyan",
                                             compact=False,
                                             loading=False,
                                             style={
@@ -285,9 +285,8 @@ def return_layout(basic_config, slice_index, brain):
                                             },
                                         ),
                                         dmc.Group(
-                                            direction="row",
-                                            align="flex-start",
-                                            position="left",
+                                            ta="flex-start",
+                                            align="left",
                                             spacing="xs",
                                             children=[
                                                 dmc.Button(
@@ -297,7 +296,7 @@ def return_layout(basic_config, slice_index, brain):
                                                     variant="filled",
                                                     radius="md",
                                                     size="xs",
-                                                    color="cyan",
+                                                    c="cyan",
                                                     compact=False,
                                                     loading=False,
                                                 ),
@@ -308,7 +307,7 @@ def return_layout(basic_config, slice_index, brain):
                                                     variant="filled",
                                                     radius="md",
                                                     size="xs",
-                                                    color="cyan",
+                                                    c="cyan",
                                                     compact=False,
                                                     loading=False,
                                                 ),
@@ -317,6 +316,7 @@ def return_layout(basic_config, slice_index, brain):
                                                 "position": "absolute",
                                                 "top": "15%",
                                                 "right": "25%",
+                                                "flexDirection": "row",
                                             },
                                         ),
                                     ],
@@ -345,9 +345,8 @@ def return_layout(basic_config, slice_index, brain):
                                             },
                                         ),
                                         dmc.Group(
-                                            direction="row",
-                                            align="flex-start",
-                                            position="left",
+                                            ta="flex-start",
+                                            align="left",
                                             spacing="xs",
                                             children=[
                                                 dmc.Button(
@@ -357,7 +356,7 @@ def return_layout(basic_config, slice_index, brain):
                                                     variant="filled",
                                                     radius="md",
                                                     size="xs",
-                                                    color="cyan",
+                                                    c="cyan",
                                                     compact=False,
                                                     loading=False,
                                                 ),
@@ -368,7 +367,7 @@ def return_layout(basic_config, slice_index, brain):
                                                     variant="filled",
                                                     radius="md",
                                                     size="xs",
-                                                    color="cyan",
+                                                    c="cyan",
                                                     compact=False,
                                                     loading=False,
                                                 ),
@@ -377,6 +376,7 @@ def return_layout(basic_config, slice_index, brain):
                                                 "position": "absolute",
                                                 "top": "10%",
                                                 "right": "20%",
+                                                "flexDirection": "row",
                                             },
                                         ),
                                     ],
@@ -408,8 +408,8 @@ def return_layout(basic_config, slice_index, brain):
                                                 #         " see the data comparison.",
                                                 #         id="page-5-alert-heatmap-lipid",
                                                 #         title="Input needed",
-                                                #         color="cyan",
-                                                #         class_name="d-none",
+                                                #         c="cyan",
+                                                #         className="d-none",
                                                 #     ),
                                                 #     style={
                                                 #         "width": "60%",
@@ -469,21 +469,21 @@ def return_layout(basic_config, slice_index, brain):
                                                 ),
                                                 dmc.Group(
                                                     spacing="lg",
-                                                    direction="column",
-                                                    align="stretch",
+                                                    ta="stretch",
                                                     style={
                                                         "width": "20%",
                                                         "position": "absolute",
                                                         "left": "1rem",
                                                         "top": "0",
+                                                        "flexDirection": "column",
                                                     },
                                                     grow=True,
                                                     children=[
                                                         dmc.Space(h="md"),
                                                         dmc.Group(
                                                             spacing="xs",
-                                                            direction="column",
-                                                            align="stretch",
+                                                            style={"flexDirection": "column"},
+                                                            ta="stretch",
                                                             grow=True,
                                                             children=[
                                                                 dmc.Text("Select a lipid:"),
@@ -505,8 +505,8 @@ def return_layout(basic_config, slice_index, brain):
                                                         ),
                                                         dmc.Group(
                                                             spacing="xs",
-                                                            direction="column",
-                                                            align="stretch",
+                                                            style={"flexDirection": "column"},
+                                                            ta="stretch",
                                                             grow=True,
                                                             children=[
                                                                 dmc.Text(
@@ -560,14 +560,14 @@ def return_layout(basic_config, slice_index, brain):
                                                             children="Visualize and compare",
                                                             id="page-5-display-heatmap-genes",
                                                             variant="filled",
-                                                            color="cyan",
+                                                            c="cyan",
                                                             radius="md",
                                                             size="xs",
                                                             disabled=False,
                                                             compact=False,
                                                             loading=False,
                                                             fullWidth=True,
-                                                            class_name="mt-3",
+                                                            className="mt-3",
                                                         ),
                                                         dmc.Button(
                                                             children="Download comparison plot",
@@ -576,7 +576,7 @@ def return_layout(basic_config, slice_index, brain):
                                                             variant="filled",
                                                             radius="md",
                                                             size="xs",
-                                                            color="cyan",
+                                                            c="cyan",
                                                             compact=False,
                                                             loading=False,
                                                             fullWidth=True,
@@ -585,13 +585,13 @@ def return_layout(basic_config, slice_index, brain):
                                                 ),
                                                 dmc.Group(
                                                     spacing="lg",
-                                                    direction="column",
-                                                    align="stretch",
+                                                    ta="stretch",
                                                     style={
                                                         "width": "20%",
                                                         "position": "absolute",
                                                         "left": "80%",
                                                         "top": "0",
+                                                        "flexDirection": "column",
                                                     },
                                                     grow=True,
                                                     children=[
@@ -599,40 +599,40 @@ def return_layout(basic_config, slice_index, brain):
                                                         dmc.Text("Current selection:", size="lg"),
                                                         dmc.Group(
                                                             spacing="xs",
-                                                            direction="column",
+                                                            style={"flexDirection": "column"},
                                                             children=[
                                                                 dmc.Text("Lipid:"),
                                                                 dmc.Badge(
                                                                     id="page-5-badge-lipid",
                                                                     children="name-lipid-1",
-                                                                    color="cyan",
+                                                                    c="cyan",
                                                                     variant="filled",
                                                                 ),
                                                             ],
                                                         ),
                                                         dmc.Group(
                                                             spacing="xs",
-                                                            direction="column",
-                                                            align="stretch",
+                                                            style={"flexDirection": "column"},
+                                                            ta="stretch",
                                                             grow=True,
                                                             children=[
                                                                 dmc.Text("Genes:"),
                                                                 dmc.Badge(
                                                                     id="page-5-badge-gene-1",
                                                                     children="name-gene-1",
-                                                                    color="red",
+                                                                    c="red",
                                                                     variant="filled",
                                                                 ),
                                                                 dmc.Badge(
                                                                     id="page-5-badge-gene-2",
                                                                     children="name-gene-2",
-                                                                    color="green",
+                                                                    c="green",
                                                                     variant="filled",
                                                                 ),
                                                                 dmc.Badge(
                                                                     id="page-5-badge-gene-3",
                                                                     children="name-gene-3",
-                                                                    color="blue",
+                                                                    c="blue",
                                                                     variant="filled",
                                                                 ),
                                                             ],

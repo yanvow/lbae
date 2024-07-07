@@ -129,16 +129,19 @@ def return_layout(basic_config, slice_index):
                                                 ],
                                             ),
                                             dmc.Group(
-                                                direction="column",
-                                                style={"display": "inline-block", "width": "30%"},
-                                                align="center",
-                                                class_name="ml-5",
+                                                style={
+                                                    "display": "inline-block", 
+                                                    "width": "30%", 
+                                                    "flexDirection": "column",
+                                                },
+                                                ta="center",
+                                                className="ml-5",
                                                 children=[
                                                     dmc.Center(
                                                         dmc.Text(
                                                             "Select lipid(s)",
                                                             size="xl",
-                                                            class_name="mb-5 pb-5 ",
+                                                            className="mb-5 pb-5 ",
                                                         )
                                                     ),
                                                     # dmc.Select(
@@ -225,11 +228,11 @@ def return_layout(basic_config, slice_index):
                                                         variant="filled",
                                                         radius="md",
                                                         size="xs",
-                                                        color="cyan",
+                                                        c="cyan",
                                                         compact=False,
                                                         loading=False,
                                                         fullWidth=True,
-                                                        class_name="mr-5",
+                                                        className="mr-5",
                                                     ),
                                                     dmc.Button(
                                                         children=(
@@ -241,11 +244,11 @@ def return_layout(basic_config, slice_index):
                                                         variant="filled",
                                                         radius="md",
                                                         size="xs",
-                                                        color="cyan",
+                                                        c="cyan",
                                                         compact=False,
                                                         loading=False,
                                                         fullWidth=True,
-                                                        class_name="mr-5 mt-1",
+                                                        className="mr-5 mt-1",
                                                     ),
                                                 ],
                                             ),
@@ -261,12 +264,12 @@ def return_layout(basic_config, slice_index):
                                                         disabled=True,
                                                         variant="filled",
                                                         radius="md",
-                                                        color="cyan",
+                                                        c="cyan",
                                                         size="xs",
                                                         compact=False,
                                                         loading=False,
                                                         fullWidth=True,
-                                                        class_name="ml-5",
+                                                        className="ml-5",
                                                     ),
                                                     dmc.Button(
                                                         children=(
@@ -278,11 +281,11 @@ def return_layout(basic_config, slice_index):
                                                         variant="filled",
                                                         radius="md",
                                                         size="xs",
-                                                        color="cyan",
+                                                        c="cyan",
                                                         compact=False,
                                                         loading=False,
                                                         fullWidth=True,
-                                                        class_name="ml-5 mt-1",
+                                                        className="ml-5 mt-1",
                                                     ),
                                                 ],
                                             ),
@@ -306,18 +309,18 @@ def return_layout(basic_config, slice_index):
                                 className="pt-1",
                                 children=[
                                     dmc.Group(
-                                        direction="row",
+                                        style={"flexDirection": "row"},
                                         grow=True,
-                                        align="flex-start",
+                                        ta="flex-start",
                                         children=[
                                             dmc.Group(
-                                                direction="column",
+                                                style={"flexDirection": "column"},
                                                 grow=True,
-                                                class_name="ml-5",
+                                                className="ml-5",
                                                 spacing="xs",
                                                 children=[
                                                     dmc.Center(
-                                                        class_name="w-100",
+                                                        className="w-100",
                                                         children=dmc.Text(
                                                             "Brain structure selection",
                                                             size="xl",
@@ -359,13 +362,13 @@ def return_layout(basic_config, slice_index):
                                                 ],
                                             ),
                                             dmc.Group(
-                                                direction="column",
+                                                style={"flexDirection": "column"},
                                                 grow=True,
-                                                class_name="ml-5",
+                                                className="ml-5",
                                                 spacing="xs",
                                                 children=[
                                                     dmc.Center(
-                                                        class_name="w-100",
+                                                        className="w-100",
                                                         children=dmc.Text(
                                                             "Lipid selection",
                                                             size="xl",
@@ -511,7 +514,7 @@ def return_layout(basic_config, slice_index):
                                                 variant="filled",
                                                 radius="md",
                                                 size="xs",
-                                                color="cyan",
+                                                c="cyan",
                                                 compact=False,
                                                 loading=False,
                                                 style={

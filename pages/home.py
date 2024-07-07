@@ -37,42 +37,42 @@ layout = (
         children=[
             dmc.Center(
                 dmc.Group(
-                    direction="column",
-                    align="stretch",
-                    class_name="mt-4",
+                    style={"flexDirection": "column"},
+                    ta="stretch",
+                    className="mt-4",
                     children=[
                         dmc.Alert(
                             "A connection of at least 10Mbps is recommended to comfortably use the"
                             " application.",
                             title="Information",
-                            color="cyan",
+                            c="cyan",
                         ),
                         dmc.Alert(
                             "This app is not recommended for use on a mobile device.",
                             id="mobile-warning",
                             title="Information",
-                            color="cyan",
-                            class_name="d-none",
+                            c="cyan",
+                            className="d-none",
                         ),
                         dmc.Alert(
                             "Performance tends to be reduced on Safari, consider switching to"
                             " another browser if encountering issues.",
                             id="safari-warning",
                             title="Information",
-                            color="cyan",
-                            class_name="d-none",
+                            c="cyan",
+                            className="d-none",
                         ),
                     ],
                 ),
             ),
             dmc.Center(
-                class_name="w-100",
+                className="w-100",
                 children=[
                     dmc.Group(
-                        class_name="mt-3",
-                        direction="column",
+                        className="mt-3",
+                        style={"flexDirection": "column"},
+                        ta="center",
                         align="center",
-                        position="center",
                         children=[
                             dmc.Text(
                                 "Welcome to the Lipid Brain Atlas Explorer",
@@ -81,7 +81,7 @@ layout = (
                                     "color": "#dee2e6",
                                     "margin-bottom": "-15rem",
                                 },
-                                align="center",
+                                ta="center",
                             ),
                             html.Div(
                                 children=[
@@ -121,9 +121,9 @@ layout = (
                                 "Please start exploring our data by using the navigation bar on the"
                                 " left",
                                 size="xl",
-                                align="center",
-                                color="dimmed",
-                                class_name="mt-4",
+                                ta="center",
+                                c="dimmed",
+                                className="mt-4",
                                 style={
                                     "margin-top": "-3rem",
                                 },
@@ -132,15 +132,15 @@ layout = (
                             #     "The mouse lipid brain atlas publication can be found here: TODO,"
                             #     " and the github repository of the app can be found here: TODO.",
                             #     size="xl",
-                            #     align="center",
-                            #     color="dimmed",
+                            #     ta="center",
+                            #     c="dimmed",
                             # ),
                             dmc.Center(
                                 dmc.Button(
                                     "Read documentation",
                                     id="page-0-collapse-doc-button",
-                                    class_name="mt-1",
-                                    color="cyan",
+                                    className="mt-1",
+                                    c="cyan",
                                 ),
                             ),
                             # Documentation in a bottom drawer
@@ -150,7 +150,7 @@ layout = (
                                 opened=False,
                                 padding="md",
                                 size="90vh",
-                                position="bottom",
+                                style={"textAlign": "bottom"},
                             ),
                         ],
                     ),
@@ -200,8 +200,8 @@ app.clientside_callback(
 
 
 @app.callback(
-    Output("safari-warning", "class_name"),
-    Output("mobile-warning", "class_name"),
+    Output("safari-warning", "className"),
+    Output("mobile-warning", "className"),
     Input("dcc-store-browser", "data"),
 )
 def update(JSoutput):

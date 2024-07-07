@@ -142,7 +142,7 @@ def return_layout(basic_config, slice_index):
                             className="loading-wrapper",
                             children=[
                                 # dbc.Spinner(
-                                #    color="dark",
+                                #    c="dark",
                                 #    children=[
                                 html.Div(
                                     className="fixed-aspect-ratio",

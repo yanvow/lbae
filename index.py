@@ -109,7 +109,7 @@ def return_main_content():
                             dmc.Text(
                                 id="main-text-slider",
                                 children="Rostro-caudal coordinate (mm): ",
-                                class_name="pr-4",
+                                className="pr-4",
                                 size="sm",
                             ),
                             dmc.Slider(
@@ -129,8 +129,8 @@ def return_main_content():
                                 ],
                                 size="xs",
                                 value=data.get_slice_list(indices="brain_1")[0],
-                                color="cyan",
-                                class_name="mt-2 mr-5 ml-2 mb-1 w-50",
+                                c="cyan",
+                                className="mt-2 mr-5 ml-2 mb-1 w-50",
                             ),
                             dmc.Slider(
                                 id="main-slider-2",
@@ -149,19 +149,38 @@ def return_main_content():
                                 ],
                                 size="xs",
                                 value=data.get_slice_list(indices="brain_2")[0],
-                                color="cyan",
-                                class_name="mt-2 mr-5 ml-2 mb-1 w-50 d-none",
+                                c="cyan",
+                                className="mt-2 mr-5 ml-2 mb-1 w-50 d-none",
                             ),
-                            dmc.Chips(
-                                id="main-brain",
-                                data=[
-                                    {"value": "brain_1", "label": "Brain 1"},
-                                    {"value": "brain_2", "label": "Brain 2"},
+                            dmc.ChipGroup(
+                                [
+                                    dmc.Chip(
+                                        "Brain 1",
+                                        value="brain_1",
+                                        variant="outline",
+                                    ),
+                                    dmc.Chip(
+                                        "Brain 2",
+                                        value="brain_2",
+                                        variant="outline",
+                                    ),
                                 ],
-                                value="brain_1",
-                                class_name="pl-2 pt-1",
-                                color="cyan",
+                                id="main-brain",
+                                value=["brain_1"], 
+                                multiple=True, 
+                                className="pl-2 pt-1",
+                                c="cyan", 
                             ),
+                            #dmc.Chips(
+                            #    id="main-brain",
+                            #    data=[
+                            #        {"value": "brain_1", "label": "Brain 1"},
+                            #        {"value": "brain_2", "label": "Brain 2"},
+                            #    ],
+                            #    value="brain_1",
+                            #    className="pl-2 pt-1",
+                            #    c="cyan",
+                            #),
                         ],
                     ),
                     # Documentation in a bottom drawer
@@ -172,7 +191,7 @@ def return_main_content():
                         opened=False,
                         padding="md",
                         size="90vh",
-                        position="bottom",
+                        style={"textAlign": "bottom"},
                     ),
                     # Spinner when switching pages
                     dbc.Spinner(
@@ -262,10 +281,10 @@ def render_page_content(pathname, slice_index, brain):
             dmc.Alert(
                 title="404: Not found",
                 children=f"The pathname {pathname} was not recognised...",
-                color="red",
-                class_name="mt-5",
+                c="red",
+                className="mt-5",
             ),
-            class_name="mt-5",
+            className="mt-5",
         )
     return page, ""
 
@@ -286,7 +305,7 @@ def toggle_collapse(n1, is_open):
 
 
 @app.callback(
-    Output("main-paper-slider", "class_name"), Input("url", "pathname"), prevent_initial_call=False
+    Output("main-paper-slider", "className"), Input("url", "pathname"), prevent_initial_call=False
 )
 def hide_slider(pathname):
     """This callback is used to hide the slider div when the user is on a page that does not need it.
@@ -335,8 +354,8 @@ def hide_slider_but_leave_brain(pathname):
 
 
 @app.callback(
-    Output("main-slider-1", "class_name"),
-    Output("main-slider-2", "class_name"),
+    Output("main-slider-1", "className"),
+    Output("main-slider-2", "className"),
     Output("main-slider-1", "value"),
     Output("main-slider-2", "value"),
     Input("main-brain", "value"),

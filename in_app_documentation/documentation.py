@@ -69,8 +69,8 @@ def convert_md(md, app):
         if len(md) > 1:
             md[0] = dmc.Image(
                 src=app.get_asset_url(md[0] + ".png"),
-                height="400px",
-                class_name="mx-auto my-5",
+                h="400px",
+                className="mx-auto my-5",
                 fit="contain",
             )
             md[1] = dcc.Markdown(md[1])
@@ -95,7 +95,7 @@ def return_documentation(app, write_doc=False):
             scrollable page.
     """
     layout = dmc.Center(
-        class_name="mx-auto",
+        className="mx-auto",
         style={"width": "60%"},
         children=dmc.ScrollArea(
             type="scroll",

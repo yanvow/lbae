@@ -104,9 +104,9 @@ def return_layout(basic_config, slice_index=1):
                         "Hovered region: ",
                         id="page-3-graph-hover-text",
                         size="lg",
-                        align="center",
-                        color="cyan",
-                        class_name="mt-5",
+                        ta="center",
+                        c="cyan",
+                        className="mt-5",
                         weight=500,
                         style={
                             "width": "100%",
@@ -118,7 +118,7 @@ def return_layout(basic_config, slice_index=1):
                         children="Compute spectral analysis",
                         id="page-3-button-compute-spectra",
                         variant="filled",
-                        color="cyan",
+                        c="cyan",
                         radius="md",
                         size="xs",
                         disabled=True,
@@ -128,21 +128,21 @@ def return_layout(basic_config, slice_index=1):
                             "right": "1%",
                             "top": "3em",
                         },
-                        class_name="position-absolute",
+                        className="position-absolute",
                     ),
                     dmc.Group(
-                        direction="column",
                         spacing=0,
                         style={
                             "left": "1%",
                             "top": "1em",
+                            "flexDirection": "column",
                         },
-                        class_name="position-absolute",
+                        className="position-absolute",
                         children=[
                             dmc.Text("Draw a region or choose a structure below", size="lg"),
                             dmc.Group(
                                 spacing="xs",
-                                align="flex-start",
+                                ta="flex-start",
                                 children=[
                                     dmc.MultiSelect(
                                         id="page-3-dropdown-brain-regions",
@@ -171,7 +171,7 @@ def return_layout(basic_config, slice_index=1):
                                         children="Reset",
                                         id="page-3-reset-button",
                                         variant="filled",
-                                        color="cyan",
+                                        c="cyan",
                                         radius="md",
                                         size="xs",
                                         disabled=False,
@@ -474,7 +474,7 @@ def return_layout(basic_config, slice_index=1):
                                                                         variant="filled",
                                                                         radius="md",
                                                                         size="xs",
-                                                                        color="cyan",
+                                                                        c="cyan",
                                                                         compact=False,
                                                                         loading=False,
                                                                         style={
@@ -488,7 +488,7 @@ def return_layout(basic_config, slice_index=1):
                                                                         id="page-4-close-drawer-region-selection",
                                                                         variant="filled",
                                                                         disabled=False,
-                                                                        color="red",
+                                                                        c="red",
                                                                         radius="md",
                                                                         size="xs",
                                                                         compact=False,
@@ -498,7 +498,7 @@ def return_layout(basic_config, slice_index=1):
                                                                             "top": "0.7rem",
                                                                             "right": "1rem",
                                                                         },
-                                                                        class_name="w-25",
+                                                                        className="w-25",
                                                                     ),
                                                                 ],
                                                             ),
@@ -593,7 +593,7 @@ def return_layout(basic_config, slice_index=1):
                                                                         variant="filled",
                                                                         radius="md",
                                                                         size="xs",
-                                                                        color="cyan",
+                                                                        c="cyan",
                                                                         compact=False,
                                                                         loading=False,
                                                                         style={
@@ -613,7 +613,7 @@ def return_layout(basic_config, slice_index=1):
                                                                                     " relative std"
                                                                                 ),
                                                                                 checked=True,
-                                                                                color="cyan",
+                                                                                c="cyan",
                                                                                 radius="xl",
                                                                                 size="sm",
                                                                                 style={
@@ -707,7 +707,7 @@ def return_layout(basic_config, slice_index=1):
                                                                     ),
                                                                     dmc.Group(
                                                                         spacing="xs",
-                                                                        align="flex-start",
+                                                                        ta="flex-start",
                                                                         children=[
                                                                             dcc.Dropdown(
                                                                                 id="page-3-dropdown-red",
@@ -764,7 +764,7 @@ def return_layout(basic_config, slice_index=1):
                                                                                     variant=(
                                                                                         "filled"
                                                                                     ),
-                                                                                    color="cyan",
+                                                                                    c="cyan",
                                                                                     radius="md",
                                                                                     size="xs",
                                                                                     disabled=True,
@@ -780,7 +780,7 @@ def return_layout(basic_config, slice_index=1):
                                                                                     " display"
                                                                                 ),
                                                                                 checked=False,
-                                                                                color="cyan",
+                                                                                c="cyan",
                                                                                 radius="xl",
                                                                                 size="sm",
                                                                                 style={
@@ -805,7 +805,7 @@ def return_layout(basic_config, slice_index=1):
                                                         variant="filled",
                                                         radius="md",
                                                         size="xs",
-                                                        color="cyan",
+                                                        c="cyan",
                                                         compact=False,
                                                         loading=False,
                                                         style={
@@ -821,7 +821,7 @@ def return_layout(basic_config, slice_index=1):
                                 ],
                             ),
                             dmc.Center(
-                                class_name="w-100",
+                                className="w-100",
                                 children=[
                                     dcc.Download(id="page-3-download-data"),
                                 ],

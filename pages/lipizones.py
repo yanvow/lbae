@@ -36,7 +36,7 @@ def return_layout(basic_config, slice_index):
     page = html.Div(
         style={
             "display": "flex",
-            "height": "100vh",
+            "height": "90vh",
             "background-color": "#1d1c1f",
         },
         children=[
@@ -55,12 +55,14 @@ def return_layout(basic_config, slice_index):
                         style={"margin-bottom": "10px"},
                     ),
                     dmc.CheckboxGroup(
-                        id="lipizones-checkboxes",
+                        id="checkbox-group",
                         orientation="vertical",
-                        spacing="sm",
+                        offset="md",
+                        mb=10,
                         children=[
                             dmc.Checkbox(label=lipizone, value=lipizone) for lipizone in lipizones_options
                         ],
+                        value=[],
                     ),
                 ],
             ),
@@ -79,17 +81,18 @@ def return_layout(basic_config, slice_index):
                         },
                         children=dcc.Graph(
                             id="page-6-graph-lipizones",
-                            config=basic_config | {
+                            responsive=True,
+                            config=basic_config 
+                            | {
                                 "toImageButtonOptions": {
                                     "format": "png",
                                     "filename": "brain_lipizones",
                                     "scale": 2,
                                 }
-                            } | {"staticPlot": False},
+                            },
                             style={
                                 "width": "100%",
                                 "height": "100%",
-                                "background-color": "#1d1c1f",
                             },
                             figure=figures.lipizones_figure([], slice_index),
                         ),
@@ -106,18 +109,28 @@ def return_layout(basic_config, slice_index):
 # ==================================================================================================
 
 @app.callback(
-    Output("lipizones-checkboxes", "value"),
+    Output("checkbox-group", "value"),
     Input("check-all", "checked"),
-    State("lipizones-checkboxes", "options"),
 )
-def check_all_boxes(checked, options):
+def check_all_boxes(checked):
     if checked:
-        return [option["value"] for option in options]
+        lipizones_options = storage.return_shelved_object(
+            "annotations",
+            "lipizones_options",
+            force_update=False,
+            compute_function=data.return_lipizones_options,
+        )
+        return lipizones_options
     return []
 
 @app.callback(
     Output("page-6-graph-lipizones", "figure"),
-    Input("lipizones-checkboxes", "value"),
+    Input("main-slider", "data"),
+    Input("checkbox-group", "value"),
 )
-def update_figure(selected_lipizones):
-    return figures.lipizones_figure(selected_lipizones)
+def update_figure(
+    slice_index,
+    selected_lipizones,
+    ):
+    return figures.lipizones_figure(selected_lipizones, slice_index)
+

@@ -994,7 +994,7 @@ class Figures:
         img_size = 500
 
         # Initialize the RGB image array with white background
-        final_image = np.ones((img_size, img_size, 3), dtype=np.uint8) * 255
+        final_image = np.zeros((img_size, img_size, 3), dtype=np.uint8)
 
         # Define a color map for the selected lipizones
         color_map = {
@@ -1006,6 +1006,14 @@ class Figures:
         df_all = self._data.get_lipizones()
         df_all = df_all[df_all["Section"] == slice_index - 32]
 
+        print("YANIS", slice_index - 32)
+
+        print("YANIS", df_all.shape)
+
+        for _, row in df_all.iterrows():
+            y, z = row["y_index"], row["z_index"]
+            final_image[y, z] = (255, 255, 255)
+
         for lipizone in lipizones:
             df = df_all[df_all["lipotype"] == lipizone]
             color = color_map[lipizone]
@@ -1016,7 +1024,7 @@ class Figures:
                     final_image[y, z] = color
 
         # Convert the image to a format Plotly can understand
-        fig = go.Figure(go.Image(z=final_image))
+        fig = go.Figure(go.Image(visible=True, z=final_image))
 
         # Improve graph layout
         fig.update_layout(

@@ -920,15 +920,7 @@ class MaldiData:
             (list): List of lipizones.
         """
 
-        return [            
-            {       
-                "label": "level " + level + " " + lipotype,
-                "value": "level " + level + " " + lipotype,
-                "group": "level " + level,
-            }
-            for level in sorted(self.get_lipizones().level.unique(), key=lambda x: int(x))
-            for lipotype in sorted(self.get_lipizones().value.unique(), key=lambda x: float(x))
-        ]
+        return self.get_lipizones().lipotype.unique()
 
     def compute_padded_original_images(self):
         """Pads the original images of the dataset so that they are all the same size.

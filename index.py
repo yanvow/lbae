@@ -167,20 +167,10 @@ def return_main_content():
                                 ],
                                 id="main-brain",
                                 value=["brain_1"], 
-                                multiple=True, 
+                                multiple=False, 
                                 className="pl-2 pt-1",
                                 c="cyan", 
                             ),
-                            #dmc.Chips(
-                            #    id="main-brain",
-                            #    data=[
-                            #        {"value": "brain_1", "label": "Brain 1"},
-                            #        {"value": "brain_2", "label": "Brain 2"},
-                            #    ],
-                            #    value="brain_1",
-                            #    className="pl-2 pt-1",
-                            #    c="cyan",
-                            #),
                         ],
                     ),
                     # Documentation in a bottom drawer
@@ -248,6 +238,8 @@ def return_validation_layout(main_content, initial_slice=1, brain="brain_1"):
 )
 def render_page_content(pathname, slice_index, brain):
     """This callback is used as a URL router."""
+
+    print("YANIS", brain)
 
     # Keep track of the page in the console
     if pathname is not None:

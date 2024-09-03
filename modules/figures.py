@@ -20,6 +20,8 @@ from scipy.ndimage.interpolation import map_coordinates
 import pandas as pd
 from scipy.interpolate import griddata
 from modules.tools.external_lib.clustergram import Clustergram
+import plotly.figure_factory as ff
+from scipy.cluster.hierarchy import linkage
 import copy
 from plotly.subplots import make_subplots
 
@@ -990,61 +992,133 @@ class Figures:
                 type.
         """
 
-        # Define the size of the image
-        img_size = 500
+        logging.info("Slice index: " + str(slice_index))
 
-        # Initialize the RGB image array with white background
-        final_image = np.zeros((img_size, img_size, 3), dtype=np.uint8)
+        # Select data for the specific section to plot
+        xx = self._data.get_lipizones_coordinates(slice_index - 32)
 
-        # Define a color map for the selected lipizones
-        color_map = {
-            lipizone: [np.random.randint(0, 256), np.random.randint(0, 256), np.random.randint(0, 256)]
-            for lipizone in lipizones
-        }
+        dot_size = 3
 
-        # Get all lipizones data
-        df_all = self._data.get_lipizones()
-        df_all = df_all[df_all["Section"] == slice_index - 32]
+        global_min_z = xx['zccf'].min()
+        global_max_z = xx['zccf'].max()
+        global_min_y = -xx['yccf'].max()
+        global_max_y = -xx['yccf'].min()
 
-        print("YANIS", slice_index - 32)
+        # Create the Plotly figure
+        fig = go.Figure()
 
-        print("YANIS", df_all.shape)
-
-        for _, row in df_all.iterrows():
-            y, z = row["y_index"], row["z_index"]
-            final_image[y, z] = (255, 255, 255)
+        # Scatter plot for all points in the section
+        fig.add_trace(
+            go.Scatter(
+                x=xx['zccf'],
+                y=-xx['yccf'],
+                mode='markers',
+                marker=dict(
+                    color=xx['lipizone_names'].astype("category").cat.codes,
+                    colorscale='Greys',
+                    size=dot_size,
+                    opacity=0.5,
+                    symbol='square'
+                ),
+                hoverinfo='skip',
+                showlegend=False
+            )
+        )
 
         for lipizone in lipizones:
-            df = df_all[df_all["lipotype"] == lipizone]
-            color = color_map[lipizone]
 
-            for _, row in df.iterrows():
-                y, z = row["y_index"], row["z_index"]
-                if 0 <= y < img_size and 0 <= z < img_size:
-                    final_image[y, z] = color
+            logging.info("Lipizone: " + lipizone)
 
-        # Convert the image to a format Plotly can understand
-        fig = go.Figure(go.Image(visible=True, z=final_image))
+            lipizone_color = self._data.get_lipizone_color(lipizone)
 
-        # Improve graph layout
-        fig.update_layout(
-            margin=dict(t=0, r=0, b=0, l=0),
-            xaxis=dict(showgrid=False, zeroline=False),
-            yaxis=dict(showgrid=False, zeroline=False),
-            width=500,
-            height=500,
+            # Scatter plot for highlighted points
+            xx_highlight = xx[xx['lipizone_names'] == lipizone]
+            fig.add_trace(
+                go.Scatter(
+                    x=xx_highlight['zccf'], 
+                    y=-xx_highlight['yccf'],
+                    mode='markers',  # Adding '+text' to enable text display
+                    marker=dict(
+                        color=lipizone_color,
+                        size=dot_size,
+                        opacity=1,
+                        symbol='circle'
+                    ),
+                    name=lipizone,
+                    hovertemplate=' ',
+                    showlegend=False
+                )
+            )
+
+        # Update axis properties
+        fig.update_xaxes(
+            range=[global_min_z, global_max_z],
+            showgrid=False,
+            zeroline=False,
+            visible=False
         )
-        fig.update_xaxes(showticklabels=False)
-        fig.update_yaxes(showticklabels=False)
-        fig.update(layout_coloraxis_showscale=False)
+        fig.update_yaxes(
+            range=[global_min_y, global_max_y],
+            showgrid=False,
+            zeroline=False,
+            visible=False
+        )
 
-        # Set background color to zero
-        fig.layout.template = "plotly_dark"
-        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
-        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
-        logging.info("Returning figure")
+        # Update layout to set the figure size and background color
+        fig.update_layout(
+            width=800,
+            height=800,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            template="plotly_dark"
+        )
 
         return fig
+    
+
+    def dendrogram_lipizones(
+            self, 
+            bottomup,
+            index
+        ):
+        """This function takes a bottom-up clustering method and a slice index, and returns a
+        dendrogram of the lipizones expressed in the slice.
+
+        Args:
+            bottomup (int): The bottom-up clustering method to be used.
+            index (int): The index of the requested slice.
+
+        Returns:
+            (go.Figure): A Plotly figure representing the requested slice image of the requested
+                type.
+        """
+
+        centroids = self._data.get_lipizones_centroids(bottomup, index)
+
+        Z = linkage(centroids, method='ward')
+
+        fig = ff.create_dendrogram(centroids.values, orientation='left', labels=centroids.index, linkagefun=lambda x: Z)
+
+        #change background color
+        fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+
+        showticklabels_y = False
+
+        if bottomup >= 4:
+            showticklabels_y = True
+
+        fig.update_xaxes(showline=False, showgrid=False, showticklabels=False, zeroline=False)
+        fig.update_yaxes(showline=False, showgrid=False, showticklabels=showticklabels_y, zeroline=False)
+
+        #remove possibility to zoom
+        fig.update_xaxes(fixedrange=True)
+        fig.update_yaxes(fixedrange=True)
+
+        #fix the size of the figure
+        fig.update_layout(width=800, height=800)
+
+        return fig
+
 
     def compute_heatmap_per_lipid_selection(
         self,

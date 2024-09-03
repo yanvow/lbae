@@ -245,10 +245,9 @@ class MaldiData:
         )
 
         # Load lipizones for brain 2
-        self._df_lipizones = pd.read_csv(path_lipizones + "coordinates_and_lipizones.csv")
-        self._df_lipizones.rename(columns={'Unnamed: 0':'id'}, inplace=True)
-        self._df_lipizones["level"] = self._df_lipizones.lipotype.apply(lambda x: x.split("_")[1])
-        self._df_lipizones["value"] = self._df_lipizones.lipotype.apply(lambda x: x.split("_")[2])
+        logging.info("Loading lipizones" + logmem())
+        self._df_lipizones = pd.read_hdf(path_lipizones + "datavignettes20240815.h5ad", key="table")
+        logging.info("Lipizones loaded" + logmem())
 
         # Brain 2 is not contained in the sampled dataset
         if not self._sample_data:
@@ -274,14 +273,84 @@ class MaldiData:
         """
         return self._df_annotations
     
-    def get_lipizones(self):
-        """Getter for the lipizones annotation of each slice, contained in a pandas
-            dataframe.
+    def get_lipizone_names(self):
+        """Getter for the names of the lipizones.
 
         Returns:
-            (pd.DataFrame): A dataframe of lipizones.
+            (list): The names of the lipizones.
         """
-        return self._df_lipizones
+        return self._df_lipizones.lipizone_names.unique()
+    
+    def get_lipizone_color(
+            self, 
+            lipizone
+        ):
+        """Getter for the color of a lipizone.
+
+        Args:
+            lipizone (str): Name of the lipizone.
+
+        Returns:
+            (str): The color of the lipizone.s
+        """
+        return self._df_lipizones[self._df_lipizones.lipizone_names == lipizone].lipizone_color.values[0]
+    
+    def get_lipizones_coordinates(
+            self, 
+            section
+        ):
+        """Getter for the coordinates of all lipizones.
+
+        Args:
+            section (str): Name of the section.
+
+        Returns:
+            (list): The coordinates of the lipizone.
+        """
+        return self._df_lipizones[self._df_lipizones["Section"] == section][["lipizone_names", "zccf", "yccf"]]
+    
+    def get_lipizone_coordinates(
+            self, 
+            lipozone, 
+            section
+        ):
+        """Getter for the coordinates of a lipizone.
+
+        Args:
+            lipizone (str): Name of the lipizone.
+            section (str): Name of the section.
+
+        Returns:
+            (list): The coordinates of the lipizone.
+        """
+        return (self._df_lipizones[self._df_lipizones.lipizone_names == lipizone].lipizone_coordinates[section].zccf,
+                self._df_lipizones[self._df_lipizones.lipizone_names == lipizone].lipizone_coordinates[section].yccf)
+
+    def get_lipizones_centroids(
+            self, 
+            bottomup,
+            index
+        ):
+        """Getter for the centroids of all lipizones.
+
+        Args:
+            section (str): Name of the section.
+
+        Returns:
+            (list): The centroids of the lipizone.
+        """
+
+        data = self._df_lipizones
+
+        logging.info("Bottomup" + str(bottomup))
+        logging.info("Index" + str(index))
+
+        if bottomup == 0:
+            return data.iloc[:,:548].groupby(data['lipizone_names']).mean()
+        
+        bottomup = 'bottomup' + str(bottomup)
+
+        return data.loc[data[bottomup] == index,:].iloc[:,:548].groupby(data['lipizone_names']).mean()
 
     def get_annotations_MAIA_transformed_lipids(self, brain_1=True):
         """Getter for the MAIA transformed lipid annotation, contained in a pandas dataframe.
@@ -912,15 +981,6 @@ class MaldiData:
                 ].cation.unique()
             )
         ]
-    
-    def return_lipizones_options(self):
-        """Computes and returns the list of lipizones.
-
-        Returns:
-            (list): List of lipizones.
-        """
-
-        return self.get_lipizones().lipotype.unique()
 
     def compute_padded_original_images(self):
         """Pads the original images of the dataset so that they are all the same size.

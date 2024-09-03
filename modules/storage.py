@@ -150,7 +150,7 @@ class Storage:
         # Load the shelve
         db = shelve.open(db_path)
         # Check if the object is in the folder already and return it
-        if complete_file_name in db and not force_update:
+        if complete_file_name in db and not force_update and file_name!="lipizones_options":
             logging.info("Returning " + complete_file_name + " from shelve file." + logmem())
             object = db[complete_file_name]
         else:

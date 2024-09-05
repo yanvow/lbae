@@ -1,5 +1,9 @@
 /*===== GENERAL CHANGES =====*/
 
+/* * {
+  border: 1px solid red;
+} */
+
 /* Smoooth scrolling looks nicer */
 html {
   scroll-behavior: smooth;

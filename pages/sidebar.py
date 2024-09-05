@@ -124,20 +124,20 @@ layout = html.Div(
                         ),
                         # Link to page 5
                         dbc.NavLink(
-                            href="/gene-data",
+                            href="/lipizones2",
                             active="exact",
                             # disabled=True,
                             children=[
                                 html.I(
                                     id="sidebar-page-5",
-                                    className="icon-dna fs-5",
+                                    className="icon-chart-bar fs-5",
                                     style={"margin-left": "0.7em"},
                                 )
                             ],
                             className="my-4",
                         ),
                         dbc.Tooltip(
-                            children="Compare with scRNAseq data",
+                            children="Explore lipid zones 2",
                             target="sidebar-page-5",
                             placement="right",
                         ),

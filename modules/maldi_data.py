@@ -279,7 +279,8 @@ class MaldiData:
         Returns:
             (list): The names of the lipizones.
         """
-        return self._df_lipizones.lipizone_names.unique()
+        #sort the lipizones
+        return self._df_lipizones.lipizone_names.sort_values().values
     
     def get_lipizone_color(
             self, 

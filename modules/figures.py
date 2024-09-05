@@ -1097,7 +1097,7 @@ class Figures:
 
         Z = linkage(centroids, method='ward')
 
-        fig = ff.create_dendrogram(centroids.values, orientation='left', labels=centroids.index, linkagefun=lambda x: Z)
+        fig = ff.create_dendrogram(centroids.values, orientation='right', labels=centroids.index, linkagefun=lambda x: Z)
 
         #change background color
         fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
@@ -1107,8 +1107,8 @@ class Figures:
         if bottomup >= 4:
             showticklabels_y = True
 
-        fig.update_xaxes(showline=False, showgrid=False, showticklabels=False, zeroline=False)
-        fig.update_yaxes(showline=False, showgrid=False, showticklabels=showticklabels_y, zeroline=False)
+        fig.update_xaxes(showline=False, showgrid=False, showticklabels=False, zeroline=False, ticks='')
+        fig.update_yaxes(showline=False, showgrid=False, showticklabels=showticklabels_y, zeroline=False, side='right', ticks='')
 
         #remove possibility to zoom
         fig.update_xaxes(fixedrange=True)
@@ -1118,7 +1118,6 @@ class Figures:
         fig.update_layout(width=800, height=800)
 
         return fig
-
 
     def compute_heatmap_per_lipid_selection(
         self,
@@ -1605,8 +1604,6 @@ class Figures:
                     lipizones_name=lipizones_name,
                 )
                 image += image_temp
-
-        print("YANIS: nb zeros", np.count_nonzero(image))
 
         # Compute corresponding figure
         fig = self.build_lipizones_heatmap_from_image(image, return_base64_string=return_base64_string)
@@ -2387,10 +2384,6 @@ class Figures:
             )
             for i, name_lipid in enumerate([name_lipid_1, name_lipid_2, name_lipid_3])
         ]
-
-        print("YANIS: shape", len(ll_array_data))
-        print("YANIS: shape", len(ll_array_data[0]))
-        print("YANIS: shape", ll_array_data[0][0].shape)
 
         if set_progress is not None:
             set_progress((50, "Averaging expression for each lipid"))

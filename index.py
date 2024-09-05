@@ -27,8 +27,8 @@ from pages import (
     lipid_selection,
     region_analysis,
     threeD_exploration,
-    scRNAseq,
     lipizones,
+    lipizones2,
 )
 from in_app_documentation.documentation import return_documentation
 from config import basic_config
@@ -220,8 +220,8 @@ def return_validation_layout(main_content, initial_slice=1, brain="brain_1"):
             lipid_selection.return_layout(basic_config, initial_slice),
             region_analysis.return_layout(basic_config, initial_slice),
             threeD_exploration.return_layout(basic_config, initial_slice),
-            scRNAseq.return_layout(basic_config, initial_slice, brain),
             lipizones.return_layout(basic_config, initial_slice),
+            lipizones2.return_layout(basic_config, initial_slice),
         ]
     )
 
@@ -238,8 +238,6 @@ def return_validation_layout(main_content, initial_slice=1, brain="brain_1"):
 )
 def render_page_content(pathname, slice_index, brain):
     """This callback is used as a URL router."""
-
-    print("YANIS", brain)
 
     # Keep track of the page in the console
     if pathname is not None:
@@ -261,11 +259,11 @@ def render_page_content(pathname, slice_index, brain):
     elif pathname == "/3D-exploration":
         page = threeD_exploration.return_layout(basic_config, slice_index)
 
-    elif pathname == "/gene-data":
-        page = scRNAseq.return_layout(basic_config, slice_index, brain)
-
     elif pathname == "/lipizones":
         page = lipizones.return_layout(basic_config, slice_index)
+
+    elif pathname == "/lipizones2":
+        page = lipizones2.return_layout(basic_config, slice_index)
 
     else:
         # If the user tries to reach a different page, return a 404 message
@@ -309,8 +307,8 @@ def hide_slider(pathname):
         "/lipid-selection",
         "/region-analysis",
         "/3D-exploration",
-        "/gene-data",
         "/lipizones",
+        "/lipizones2",
     ]
 
     # Set the content according to the current pathname
@@ -334,7 +332,6 @@ def hide_slider_but_leave_brain(pathname):
     # Pages in which the slider is displayed
     l_path_without_slider_but_with_brain = [
         "/3D-exploration",
-        "/gene-data",
     ]
 
     # Set the content according to the current pathname
@@ -363,7 +360,9 @@ def hide_useless_slider(brain, value_1, value_2):
     elif brain == "brain_2":
         value_2 = value_1 + data.get_slice_list(indices="brain_1")[-1]
         return "mt-2 mr-5 ml-2 mb-1 w-50 d-none", "mt-2 mr-5 ml-2 mb-1 w-50", value_1, value_2
-    
+    else:
+        return "mt-2 mr-5 ml-2 mb-1 w-50", "mt-2 mr-5 ml-2 mb-1 w-50 d-none", value_1, value_2
+
 @app.callback(
     Output("main-brain", "data"),
     Output("main-brain", "value"),
@@ -372,7 +371,7 @@ def hide_useless_slider(brain, value_1, value_2):
 )
 def disable_brain_1_for_lipizones(pathname, brain):
     #if pathname is lipizones disable the blain_1 main-brain
-    if pathname == "/lipizones":
+    if pathname == "/lipizones" or pathname == "/lipizones2":
         return ([
             {"value": "brain_1", "label": "Brain 1", "disabled": True},
             {"value": "brain_2", "label": "Brain 2"}

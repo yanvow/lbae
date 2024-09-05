@@ -171,7 +171,7 @@ def return_layout(basic_config, slice_index):
                                     "width": "100%",
                                     "height": "100%",
                                 },
-                                figure=figures.dendrogram_lipizones(dendrogram_bottomup, dendrogram_index),
+                                figure=figures.dendrogram_lipizones_figure(dendrogram_bottomup, dendrogram_index),
                             ),
                         )
                     ),
@@ -234,20 +234,20 @@ def update_dendrogram(back, up, down):
         logging.info("Up button clicked")
         dendrogram_bottomup += 1
         dendrogram_index = 1 if dendrogram_index == 0 else dendrogram_index * 2 - 1
-        return figures.dendrogram_lipizones(dendrogram_bottomup, dendrogram_index), False
+        return figures.dendrogram_lipizones_figure(dendrogram_bottomup, dendrogram_index), False
     elif id_input == "down-button":
         logging.info("Down button clicked")
         dendrogram_bottomup += 1
         dendrogram_index = 2 if dendrogram_index == 0 else dendrogram_index * 2 
-        return figures.dendrogram_lipizones(dendrogram_bottomup, dendrogram_index), False
+        return figures.dendrogram_lipizones_figure(dendrogram_bottomup, dendrogram_index), False
     else:
         logging.info("Back button clicked")
         dendrogram_bottomup -= 1
         dendrogram_index = (dendrogram_index + 1) // 2
         if dendrogram_bottomup == 0:
             dendrogram_index = 0
-            return figures.dendrogram_lipizones(dendrogram_bottomup, dendrogram_index), True
-        return figures.dendrogram_lipizones(dendrogram_bottomup, dendrogram_index), False
+            return figures.dendrogram_lipizones_figure(dendrogram_bottomup, dendrogram_index), True
+        return figures.dendrogram_lipizones_figure(dendrogram_bottomup, dendrogram_index), False
 
 def get_all_lipizones():
     return storage.return_shelved_object(

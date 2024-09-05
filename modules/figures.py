@@ -1076,7 +1076,7 @@ class Figures:
         return fig
     
 
-    def dendrogram_lipizones(
+    def dendrogram_lipizones_figure(
             self, 
             bottomup,
             index
@@ -1116,6 +1116,88 @@ class Figures:
 
         #fix the size of the figure
         fig.update_layout(width=800, height=800)
+
+        return fig
+
+
+    def division_lipizones_figure(
+            self,
+            division,
+            index
+        ):
+
+        """This function takes a division method and a slice index, and returns a figure of the
+        lipizones expressed in the slice.
+
+        Args:
+            division (int): The division method to be used.
+            index (int): The index of the requested slice.
+
+        Returns:
+            (go.Figure): A Plotly figure representing the requested slice image of the requested
+                type.
+        """
+
+        # Create the Plotly figure
+        fig = go.Figure()
+
+        if division:
+            filtered_section = self._data.get_lipizones_division(division, index)
+
+            # Create scatter plot for division data points
+            fig.add_trace( 
+                go.Scatter(
+                    x=filtered_section['z_index'],
+                    y=-filtered_section['y_index'],
+                    mode='markers',
+                    marker=dict(
+                        color=filtered_section['lipizone_color'],
+                        size=0.05,
+                        opacity=1
+                    ),
+                    name=division
+                )
+            )
+
+        # Filter for contour boundary
+        filtered_section_contour = self._data.get_lipizones_boundaries(index)
+
+        # Create scatter plot for contour boundary points
+        fig.add_trace( 
+            go.Scatter(
+                x=filtered_section_contour['z_index'],
+                y=-filtered_section_contour['y_index'],
+                mode='markers',
+                marker=dict(
+                    color='grey',
+                    size=0.01,
+                    opacity=0.9
+                ),
+                name='Boundary'
+            )
+        )
+
+        # Update axis properties
+        fig.update_xaxes(
+            showgrid=False,
+            zeroline=False,
+            visible=False
+        )
+
+        fig.update_yaxes(
+            showgrid=False,
+            zeroline=False,
+            visible=False
+        )
+
+        # Update layout to set the figure size and background color
+        fig.update_layout(
+            width=800,
+            height=800,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            template="plotly_dark"
+        )
 
         return fig
 

@@ -279,7 +279,6 @@ class MaldiData:
         Returns:
             (list): The names of the lipizones.
         """
-        #sort the lipizones
         return self._df_lipizones.lipizone_names.sort_values().values
     
     def get_lipizone_color(
@@ -296,6 +295,14 @@ class MaldiData:
         """
         return self._df_lipizones[self._df_lipizones.lipizone_names == lipizone].lipizone_color.values[0]
     
+    def get_lipizones_divisions(self):
+        """Getter for the divisions of the lipizones.
+
+        Returns:
+            (list): The divisions of the lipizones.
+        """
+        return self._df_lipizones.division.sort_values().values
+    
     def get_lipizones_coordinates(
             self, 
             section
@@ -309,6 +316,37 @@ class MaldiData:
             (list): The coordinates of the lipizone.
         """
         return self._df_lipizones[self._df_lipizones["Section"] == section][["lipizone_names", "zccf", "yccf"]]
+    
+    def get_lipizones_boundaries(
+            self,
+            section
+        ):
+        """Getter for the boundaries of all lipizones.
+
+        Args:
+            section (str): Name of the section.
+
+        Returns:
+            (list): The boundaries of the lipizones.
+        """
+        section = self._df_lipizones[self._df_lipizones["Section"] == section]
+        return section.loc[section['boundary'] == 1,:][["z_index", "y_index"]]
+    
+    def get_lipizones_division(
+            self,
+            division,
+            section
+        ):
+        """Getter for the division of all lipizones.
+
+        Args:
+            section (str): Name of the section.
+
+        Returns:
+            (list): The division of the lipizones.
+        """
+        section = self._df_lipizones[self._df_lipizones["Section"] == section]
+        return section.loc[section['division'].isin([division]),:][["lipizone_names", "lipizone_color", "z_index", "y_index"]]
     
     def get_lipizone_coordinates(
             self, 

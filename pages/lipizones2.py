@@ -24,11 +24,58 @@ from app import app, figures, data, storage, cache_flask
 # --- Layout
 # ==================================================================================================
 
-def return_layout(basic_config, slice_index):
+# Updated Layout
+def return_layout(basic_config, index):
 
-    # have text saying lipizones 2
+    divisions_options = data.get_lipizones_divisions()
+
     page = html.Div(
-        "lipizones 2"
+        style={
+            "display": "flex",
+            "height": "90vh",
+            "background-color": "#1d1c1f",
+        },
+        children=[
+            html.Div(
+                style={
+                    "left": "1%",
+                    "top": "1em",
+                },
+                children=[
+                    dmc.Select(
+                        id="division-dropdown",
+                        data=[{"label": division, "value": division} for division in divisions_options],
+                        placeholder="Select a Division",
+                        style={"margin-bottom": "10px"},
+                    ),
+                ],
+            ),
+            html.Div(
+                style={
+                    "flex-grow": 1,
+                    "padding": "10px",
+                },
+                children=[
+                    dcc.Loading(
+                        style={
+                            "margin-top": "40%",
+                            "width": "3rem",
+                            "height": "3rem",
+                        },
+                        children=dcc.Graph(
+                            id="division-graph",
+                            responsive=True,
+                            config=basic_config,
+                            style={
+                                "width": "100%",
+                                "height": "100%",
+                            },
+                            figure=figures.division_lipizones_figure(None, index),
+                        ),
+                    )
+                ]
+            ),
+        ],
     )
 
     return page
@@ -36,4 +83,15 @@ def return_layout(basic_config, slice_index):
 # ==================================================================================================
 # --- Callbacks
 # ==================================================================================================
+
+# Callback for updating the graph based on the selected division
+@app.callback(
+    Output("division-graph", "figure"),
+    [Input("division-dropdown", "value")],
+    prevent_initial_call=True
+)
+def update_division_figure(selected_division):
+    if selected_division:
+        return figures.division_lipizones_figure(selected_division, index)
+    return {}  # Return an empty figure if no division is selected
 

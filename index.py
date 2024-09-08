@@ -363,29 +363,6 @@ def hide_useless_slider(brain, value_1, value_2):
     else:
         return "mt-2 mr-5 ml-2 mb-1 w-50", "mt-2 mr-5 ml-2 mb-1 w-50 d-none", value_1, value_2
 
-@app.callback(
-    Output("main-brain", "data"),
-    Output("main-brain", "value"),
-    Input("url", "pathname"),
-    State("main-brain", "value")
-)
-def disable_brain_1_for_lipizones(pathname, brain):
-    #if pathname is lipizones disable the blain_1 main-brain
-    if pathname == "/lipizones" or pathname == "/lipizones2":
-        return ([
-            {"value": "brain_1", "label": "Brain 1", "disabled": True},
-            {"value": "brain_2", "label": "Brain 2"}
-        ],
-        "brain_2"
-        )
-    else:
-        return ([
-            {"value": "brain_1", "label": "Brain 1"},
-            {"value": "brain_2", "label": "Brain 2"}
-        ],
-        brain
-        )
-
 
 app.clientside_callback(
     """

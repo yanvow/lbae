@@ -32,7 +32,7 @@ basic_config = {
     "displaylogo": False,
 }
 
-# Viridis colormap with black for 0 values
-newcolors = cm.get_cmap("viridis", 256)(np.linspace(0, 1, 256))
+# Plasma colormap with black for 0 values
+newcolors = cm.get_cmap("plasma", 256)(np.linspace(0, 1, 256))
 newcolors[:1, :] = np.array([0 / 256, 0 / 256, 0 / 256, 1])
-black_viridis = ListedColormap(newcolors)
+black_plasma = ListedColormap(newcolors)

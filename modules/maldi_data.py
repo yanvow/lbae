@@ -165,10 +165,11 @@ class MaldiData:
         "_l_slices_brain_1",
         "_l_slices_brain_2",
         "_sample_data",
-        "_df_annotations",
         "_df_lipizones",
-        "_df_annotations_MAIA_transformed_lipids_brain_1",
-        "_df_annotations_MAIA_transformed_lipids_brain_2",
+        "_np_lipid_green_arrays",
+        "_np_lipid_plasma_arrays",
+        "_np_lipizones_arrays",
+        "_np_lipizones_sections_arrays",
         "_path_data",
     ]
 
@@ -179,7 +180,7 @@ class MaldiData:
     def __init__(
         self,
         path_data="data/whole_dataset/",
-        path_annotations="data/annotations/",
+        path_lipids="data/lipids/",
         path_lipizones="data/lipizones/",
         sample_data=False,
     ):
@@ -236,43 +237,99 @@ class MaldiData:
         # Save path_data for cleaning memmap in case
         self._path_data = path_data
 
-        # Load lipid annotation (not user-session specific)
-        self._df_annotations = pd.read_csv(path_annotations + "lipid_annotation.csv")
-
-        # Load lipid annotations of MAIA-transformed lipids for brain 1
-        self._df_annotations_MAIA_transformed_lipids_brain_1 = pd.read_csv(
-            path_annotations + "transformed_lipids_brain_1.csv"
-        )
+        # Load lipids for brain 2
+        logging.info("Loading lipids" + logmem())
+        green = []
+        plasma = []
+        for section in range(1, 4):
+            green.append(np.load(path_lipids + f"lipids_green_arrays_{section}.npz"))
+            plasma.append(np.load(path_lipids + f"lipids_plasma_arrays_{section}.npz"))
+        
+        self._np_lipid_green_arrays = green
+        self._np_lipid_plasma_arrays = plasma
+        logging.info("Lipids loaded" + logmem())
 
         # Load lipizones for brain 2
         logging.info("Loading lipizones" + logmem())
         self._df_lipizones = pd.read_hdf(path_lipizones + "datavignettes20240815.h5ad", key="table")
         logging.info("Lipizones loaded" + logmem())
 
-        # Brain 2 is not contained in the sampled dataset
-        if not self._sample_data:
-            # Load lipid annotations of MAIA-transformed lipids for brain 2
-            self._df_annotations_MAIA_transformed_lipids_brain_2 = pd.read_csv(
-                path_annotations + "transformed_lipids_brain_2.csv"
-            )
-        else:
-            self._df_annotations_MAIA_transformed_lipids_brain_2 = None
+        logging.info("Loading lipizones arrays" + logmem())
+        lipizones = []
+        for section in range(1, 4):
+            lipizones.append(np.load(path_lipizones + f"lipizones_arrays_{section}.npz"))
+
+        self._np_lipizones_arrays = lipizones
+        logging.info("Lipizones arrays loaded" + logmem())
+
+        logging.info("Loading lipizones sections arrays" + logmem())
+        self._np_lipizones_sections_arrays = np.load(path_lipizones + "lipizones_sections_arrays.npz")
+        logging.info("Lipizones sections arrays loaded" + logmem())
 
         logging.info("MaldiData object instantiated" + logmem())
 
     # ==============================================================================================
     # --- Methods
     # ==============================================================================================
+    
+    def get_lipizones_section_array(
+            self,
+            section
+        ):
+        """Getter for the lipizones section array.
 
-    def get_annotations(self):
-        """Getter for the lipid annotation of each slice, contained in a pandas
-            dataframe.
+        Args:
+            section (int): Index of the section.
 
         Returns:
-            (pd.DataFrame): A dataframe of annotations.
+            (np.ndarray): The lipizones section array.
         """
-        return self._df_annotations
+        return self._np_lipizones_sections_arrays[str(section)]
     
+    def get_lipizones_array(
+            self,
+            section
+        ):
+        """Getter for the lipizones array.
+
+        Args:
+            section (int): Index of the section.
+
+        Returns:
+            (np.ndarray): The lipizones array.
+        """
+        return self._np_lipizones_arrays[section - 1]
+    
+    def get_lipid_green_array(
+            self,
+            section
+        ):
+        """Getter for the lipid green array.
+
+        Args:
+            section (int): Index of the section.
+
+        Returns:
+            (np.ndarray): The lipid green array.
+        """
+
+        return self._np_lipid_green_arrays[section - 1]
+    
+    def get_lipid_plasma_array(
+            self,
+            section
+        ):
+        """Getter for the lipid plasma array.
+
+        Args:
+            section (int): Index of the section.
+
+        Returns:
+            (np.ndarray): The lipid plasma array.
+        """
+
+        return self._np_lipid_plasma_arrays[section - 1]
+
     def get_lipizone_names(self):
         """Getter for the names of the lipizones.
 
@@ -347,23 +404,6 @@ class MaldiData:
         """
         section = self._df_lipizones[self._df_lipizones["Section"] == section]
         return section.loc[section['division'].isin([division]),:][["lipizone_names", "lipizone_color", "z_index", "y_index"]]
-    
-    def get_lipizone_coordinates(
-            self, 
-            lipozone, 
-            section
-        ):
-        """Getter for the coordinates of a lipizone.
-
-        Args:
-            lipizone (str): Name of the lipizone.
-            section (str): Name of the section.
-
-        Returns:
-            (list): The coordinates of the lipizone.
-        """
-        return (self._df_lipizones[self._df_lipizones.lipizone_names == lipizone].lipizone_coordinates[section].zccf,
-                self._df_lipizones[self._df_lipizones.lipizone_names == lipizone].lipizone_coordinates[section].yccf)
 
     def get_lipizones_centroids(
             self, 
@@ -390,21 +430,6 @@ class MaldiData:
         bottomup = 'bottomup' + str(bottomup)
 
         return data.loc[data[bottomup] == index,:].iloc[:,:548].groupby(data['lipizone_names']).mean()
-
-    def get_annotations_MAIA_transformed_lipids(self, brain_1=True):
-        """Getter for the MAIA transformed lipid annotation, contained in a pandas dataframe.
-
-        Args:
-            brain_1 (bool, optional): If True, return the lipid annotions for brain 1. Else for
-                brain 2. Defaults to True.
-
-        Returns:
-            (pd.DataFrame): A dataframe of lipid annotations for the MAIA transformed lipids.
-        """
-        if brain_1:
-            return self._df_annotations_MAIA_transformed_lipids_brain_1
-        else:
-            return self._df_annotations_MAIA_transformed_lipids_brain_2
 
     def get_slice_number(self):
         """Getter for the number of slice present in the dataset.
@@ -997,29 +1022,13 @@ class MaldiData:
         return l_labels
 
     def return_lipid_options(self):
-        """Computes and returns the list of lipid names, structures and cation.
+        """Returns the list of lipid.
 
         Returns:
-            (list): List of lipid names, structures and cations.
+            (list): List of lipid.
         """
 
-        return [
-            {
-                "label": name + " " + structure + " " + cation,
-                "value": name + " " + structure + " " + cation,
-                "group": name,
-            }
-            for name in sorted(self.get_annotations().name.unique())
-            for structure in sorted(
-                self.get_annotations()[(self.get_annotations()["name"] == name)].structure.unique()
-            )
-            for cation in sorted(
-                self.get_annotations()[
-                    (self.get_annotations()["name"] == name)
-                    & (self.get_annotations()["structure"] == structure)
-                ].cation.unique()
-            )
-        ]
+        return self._df_lipizones.columns.tolist()[:548]
 
     def compute_padded_original_images(self):
         """Pads the original images of the dataset so that they are all the same size.

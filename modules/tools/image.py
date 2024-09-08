@@ -16,7 +16,7 @@ from io import BytesIO
 from PIL import Image
 
 # LBAE imports
-from config import black_viridis
+from config import black_plasma
 
 # ==================================================================================================
 # --- Functions
@@ -43,7 +43,7 @@ def convert_image_to_base64(
     image_array,
     optimize=True,
     quality=85,
-    colormap=black_viridis,
+    colormap=black_plasma,
     type=None,
     format="png",
     overlay=None,
@@ -63,7 +63,7 @@ def convert_image_to_base64(
         quality (int, optional): Image quality, from 0 to 100, used by PIL for compression. Defaults
             to 85.
         colormap (cm colormap, optional): The colormap used to map 1D uint8 image to colors.
-            Defaults to cm.viridis.
+            Defaults to cm.plasma.
         type (str, optional): The type of the image. If image_array is in 3D, type must be RGB. If
             4D, type must be RGBA. Defaults to None.
         format (str, optional): The output format for the bytestring image. Defaults to "png".

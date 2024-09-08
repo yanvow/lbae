@@ -371,8 +371,6 @@ class Launch:
             array_idx_labels = np.array([-1 - 1 - 1], dtype=np.int32)
             compute_avg_intensity_per_lipid(array_intensity_with_lipids, array_idx_labels)
             compute_image_using_index_and_image_lookup(
-                500.1,
-                500.2,
                 self.data.get_array_spectra(slice_index),
                 self.data.get_array_lookup_pixels(slice_index),
                 self.data.get_image_shape(slice_index),
@@ -381,7 +379,6 @@ class Launch:
                 self.data.get_divider_lookup(slice_index),
                 self.data.get_array_peaks_transformed_lipids(slice_index),
                 self.data.get_array_corrective_factors(slice_index).astype(np.float32),
-                apply_transform=False,
             )
 
         def select_lipid_and_region_and_plot_volume():

@@ -170,6 +170,7 @@ class MaldiData:
         "_np_lipid_plasma_arrays",
         "_np_lipizones_arrays",
         "_np_lipizones_sections_arrays",
+        "_slices_n",
         "_path_data",
     ]
 
@@ -242,8 +243,8 @@ class MaldiData:
         green = []
         plasma = []
         for section in range(1, 4):
-            green.append(np.load(path_lipids + f"lipids_green_arrays_{section}.npz"))
-            plasma.append(np.load(path_lipids + f"lipids_plasma_arrays_{section}.npz"))
+            green.append(np.load(path_lipids + f"small_lipids_green_arrays_{section}.npz"))
+            plasma.append(np.load(path_lipids + f"small_lipids_plasma_arrays_{section}.npz"))
         
         self._np_lipid_green_arrays = green
         self._np_lipid_plasma_arrays = plasma
@@ -254,16 +255,18 @@ class MaldiData:
         self._df_lipizones = pd.read_hdf(path_lipizones + "datavignettes20240815.h5ad", key="table")
         logging.info("Lipizones loaded" + logmem())
 
+        self._slices_n = len(self._df_lipizones.Section.unique())
+
         logging.info("Loading lipizones arrays" + logmem())
         lipizones = []
         for section in range(1, 4):
-            lipizones.append(np.load(path_lipizones + f"lipizones_arrays_{section}.npz"))
+            lipizones.append(np.load(path_lipizones + f"small_lipizones_arrays_{section}.npz"))
 
         self._np_lipizones_arrays = lipizones
         logging.info("Lipizones arrays loaded" + logmem())
 
         logging.info("Loading lipizones sections arrays" + logmem())
-        self._np_lipizones_sections_arrays = np.load(path_lipizones + "lipizones_sections_arrays.npz")
+        self._np_lipizones_sections_arrays = np.load(path_lipizones + "small_lipizones_sections_arrays.npz")
         logging.info("Lipizones sections arrays loaded" + logmem())
 
         logging.info("MaldiData object instantiated" + logmem())
@@ -430,6 +433,14 @@ class MaldiData:
         bottomup = 'bottomup' + str(bottomup)
 
         return data.loc[data[bottomup] == index,:].iloc[:,:548].groupby(data['lipizone_names']).mean()
+    
+    def get_number_of_sections(self):
+        """Getter for the number of sections.
+
+        Returns:
+            (int): The number of sections.
+        """
+        return self._slices_n
 
     def get_slice_number(self):
         """Getter for the number of slice present in the dataset.

@@ -71,9 +71,7 @@ def return_layout(basic_config, slice_index):
                                     "top": "0",
                                     "background-color": "#1d1c1f",
                                 },
-                                figure=figures.compute_grey_image_per_slice(
-                                    slice_index
-                                ),
+                                figure=figures.compute_grey_image_grouped(),
                             ),
                         ),
                         dmc.Group(
@@ -206,6 +204,63 @@ def return_layout(basic_config, slice_index):
                         dcc.Download(id="page-2-download-data"),
                     ],
                 ),
+                html.Div(
+                    children=[
+                        dbc.Offcanvas(
+                            id="page-2-drawer-graph-section",
+                            backdrop=False,
+                            placement="end",
+                            style={
+                                "width": "calc(100% - 6rem)",
+                                "top": "10%",
+                                "height": "80%",
+                                "background-color": "#1d1c1f",
+                            },
+                            children=[
+                                dmc.Button(
+                                    children="Close panel",
+                                    id="page-2-close-drawer-graph-section",
+                                    variant="filled",
+                                    disabled=False,
+                                    c="red",
+                                    radius="md",
+                                    size="xs",
+                                    compact=False,
+                                    loading=False,
+                                    style={
+                                        "position": "absolute",
+                                        "top": "0.7rem",
+                                        "right": "1rem",
+                                    },
+                                    className="w-25",
+                                ),
+                                dbc.Spinner(
+                                    color="info",
+                                    spinner_style={
+                                        "margin-top": "40%",
+                                        "width": "3rem",
+                                        "height": "3rem",
+                                    },
+                                    children=dcc.Graph(
+                                        id="page-2-graph-lipid-selection-drawer",
+                                        config=basic_config,
+                                        style={
+                                            "width": "95%",
+                                            "height": "95%",
+                                            "position": "absolute",
+                                            "left": "0",
+                                            "top": "0",
+                                            "background-color": "#1d1c1f",
+                                        },
+                                        figure=figures.compute_grey_image_per_slice(
+                                            slice_index=slice_index
+                                        ),
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
     )
@@ -221,16 +276,15 @@ def return_layout(basic_config, slice_index):
 @app.callback(
     Output("page-2-graph-lipid-selection", "figure"),
     Output("page-2-badge-input", "children"),
-    Input("main-slider", "data"),
     Input("page-2-badge-lipid-1", "children"),
     Input("page-2-badge-lipid-2", "children"),
     Input("page-2-badge-lipid-3", "children"),
     Input("page-2-rgb-button", "n_clicks"),
     Input("page-2-colormap-button", "n_clicks"),
     State("page-2-badge-input", "children"),
+    prevent_initial_call=True,
 )
 def page_2_plot_graph_heatmap_selection(
-    slice_index,
     header_1,
     header_2,
     header_3,
@@ -252,18 +306,14 @@ def page_2_plot_graph_heatmap_selection(
         or id_input == "page-2-badge-lipid-3"
         or id_input == "page-2-rgb-button"
         or id_input == "page-2-colormap-button"
-        or (
-            (id_input == "main-slider")
-            and (
-                graph_input == "Current input: " + "Lipid selection colormap"
-                or graph_input == "Current input: " + "Lipid selection RGB"
-                or graph_input == "Current input: " + "None"
-            )
-        )
-    ):
-        logging.info("Lipid selection has been done, propagating callback.")
-        
+    ):  
         l_lipid_names = [header_1, header_2, header_3]
+
+        if l_lipid_names == ["", "", ""]:
+            return (
+                figures.compute_grey_image_grouped(),
+                "Current input: " + "None",
+            )
 
         if (
             id_input == "page-2-badge-lipid-1"
@@ -275,35 +325,26 @@ def page_2_plot_graph_heatmap_selection(
                 graph_input == "Current input: " + "Lipid selection colormap"
             ):
                 return (
-                    figures.compute_heatmap_per_lipid_selection(
-                        slice_index,
+                    figures.compute_heatmap_grouped(
                         l_lipid_names=l_lipid_names
                     ),
                     "Current input: " + "Lipid selection colormap",
                 )
             
-            elif(
-                graph_input == "Current input: " + "Lipid selection RGB"
-            ):
+            else:
                 return (
-                    figures.compute_rgb_image_per_lipid_selection(
-                        slice_index,
+                    figures.compute_rgb_image_grouped(
                         l_lipid_names=l_lipid_names
                     ),
                     "Current input: " + "Lipid selection RGB",
-            )
+                )
 
         # Check if the current plot must be a heatmap
         elif (
             id_input == "page-2-colormap-button"
-            or (
-                id_input == "main-slider"
-                and graph_input == "Current input: " + "Lipid selection colormap"
-            )
         ):
             return (
-                figures.compute_heatmap_per_lipid_selection(
-                    slice_index,
+                figures.compute_heatmap_grouped(
                     l_lipid_names=l_lipid_names
                 ),
                 "Current input: " + "Lipid selection colormap",
@@ -312,14 +353,9 @@ def page_2_plot_graph_heatmap_selection(
         # Or if the current plot must be an RGB image
         elif (
             id_input == "page-2-rgb-button"
-            or (
-                id_input == "main-slider"
-                and graph_input == "Current input: " + "Lipid selection RGB"
-            )
         ):
             return (
-                figures.compute_rgb_image_per_lipid_selection(
-                    slice_index,
+                figures.compute_rgb_image_grouped(
                     l_lipid_names=l_lipid_names
                 ),
                 "Current input: " + "Lipid selection RGB",
@@ -329,9 +365,7 @@ def page_2_plot_graph_heatmap_selection(
         else:
             logging.info("Right before calling the graphing function")
             return (
-                figures.compute_grey_image_per_slice(
-                    slice_index
-                ),
+                figures.compute_grey_image_grouped(),
                 "Current input: " + "None",
             )
 
@@ -368,7 +402,6 @@ def page_2_add_toast_selection(
 
     # Find out which input triggered the function
     id_input = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-    value_input = dash.callback_context.triggered[0]["prop_id"].split(".")[1]
 
     # if page-2-dropdown-lipids is called while there's no lipid name defined, it means the page
     # just got loaded
@@ -446,149 +479,6 @@ def page_2_add_toast_selection(
 
     return dash.no_update
 
-
-@app.callback(
-    Output("page-2-download-data", "data"),
-    Input("page-2-download-data-button", "n_clicks"),
-    State("page-2-selected-lipid-1", "data"),
-    State("page-2-selected-lipid-2", "data"),
-    State("page-2-selected-lipid-3", "data"),
-    State("main-slider", "data"),
-    State("page-2-badge-input", "children"),
-    prevent_initial_call=True,
-)
-def page_2_download(
-    n_clicks,
-    lipid_1_index,
-    lipid_2_index,
-    lipid_3_index,
-    slice_index,
-    graph_input,
-):
-    """This callback is used to generate and download the data in proper format."""
-
-    # Current input is lipid selection
-    if (
-        graph_input == "Current input: " + "Lipid selection colormap"
-        or graph_input == "Current input: " + "Lipid selection RGB"
-    ):
-
-        l_lipids_indexes = [
-            x for x in [lipid_1_index, lipid_2_index, lipid_3_index] if x is not None and x != -1
-        ]
-        # If lipids has been selected from the dropdown, filter them in the df and download them
-        if len(l_lipids_indexes) > 0:
-
-            def to_excel(bytes_io):
-                xlsx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
-                data.get_annotations().iloc[l_lipids_indexes].to_excel(
-                    xlsx_writer, index=False, sheet_name="Selected lipids"
-                )
-                for i, index in enumerate(l_lipids_indexes):
-                    name = (
-                        data.get_annotations().iloc[index]["name"]
-                        + "_"
-                        + data.get_annotations().iloc[index]["structure"]
-                        + "_"
-                        + data.get_annotations().iloc[index]["cation"]
-                    )
-
-                    # Need to clean name to use it as a sheet name
-                    name = name.replace(":", "").replace("/", "")
-                    lb = float(data.get_annotations().iloc[index]["min"]) - 10**-2
-                    hb = float(data.get_annotations().iloc[index]["max"]) + 10**-2
-                    x, y = figures.compute_spectrum_high_res(
-                        slice_index,
-                        lb,
-                        hb,
-                        plot=False,
-                        standardization=apply_transform,
-                        cache_flask=cache_flask,
-                    )
-                    df = pd.DataFrame.from_dict({"m/z": x, "Intensity": y})
-                    df.to_excel(xlsx_writer, index=False, sheet_name=name[:31])
-                xlsx_writer.save()
-
-            return dcc.send_data_frame(to_excel, "my_lipid_selection.xlsx")
-
-    # Current input is manual boundaries selection from input box
-    if graph_input == "Current input: " + "m/z boundaries":
-        lb, hb = float(lb), float(hb)
-        if lb >= 400 and hb <= 1600 and hb - lb > 0 and hb - lb < 10:
-
-            def to_excel(bytes_io):
-
-                # Get spectral data
-                mz, intensity = figures.compute_spectrum_high_res(
-                    slice_index,
-                    lb - 10**-2,
-                    hb + 10**-2,
-                    force_xlim=True,
-                    standardization=apply_transform,
-                    cache_flask=cache_flask,
-                    plot=False,
-                )
-
-                # Turn to dataframe
-                dataset = pd.DataFrame.from_dict({"m/z": mz, "Intensity": intensity})
-
-                # Export to excel
-                xlsx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
-                dataset.to_excel(xlsx_writer, index=False, sheet_name="mz selection")
-                xlsx_writer.save()
-
-            return dcc.send_data_frame(to_excel, "my_boundaries_selection.xlsx")
-
-    # Current input is boundaries from the low-res m/z plot
-    elif graph_input == "Current input: " + "Selection from high-res m/z graph":
-        if bound_high_res is not None:
-            # Case the zoom is high enough
-            if bound_high_res[1] - bound_high_res[0] <= 3:
-
-                def to_excel(bytes_io):
-
-                    # Get spectral data
-                    bound_high_res = json.loads(bound_high_res)
-                    mz, intensity = figures.compute_spectrum_high_res(
-                        slice_index,
-                        bound_high_res[0],
-                        bound_high_res[1],
-                        standardization=apply_transform,
-                        cache_flask=cache_flask,
-                        plot=False,
-                    )
-
-                    # Turn to dataframe
-                    dataset = pd.DataFrame.from_dict({"m/z": mz, "Intensity": intensity})
-
-                    # Export to excel
-                    xlsx_writer = pd.ExcelWriter(bytes_io, engine="xlsxwriter")
-                    dataset.to_excel(xlsx_writer, index=False, sheet_name="mz selection")
-                    xlsx_writer.save()
-
-                return dcc.send_data_frame(to_excel, "my_boundaries_selection.xlsx")
-
-    return dash.no_update
-
-
-clientside_callback(
-    """
-    function(n_clicks){
-        if(n_clicks > 0){
-            domtoimage.toBlob(document.getElementById('page-2-graph-heatmap-mz-selection'))
-                .then(function (blob) {
-                    window.saveAs(blob, 'lipid_selection_plot.png');
-                }
-            );
-        }
-    }
-    """,
-    Output("page-2-download-image-button", "n_clicks"),
-    Input("page-2-download-image-button", "n_clicks"),
-)
-"""This clientside callback is used to download the current heatmap."""
-
-
 @app.callback(
     Output("page-2-rgb-button", "disabled"),
     Output("page-2-colormap-button", "disabled"),
@@ -596,19 +486,155 @@ clientside_callback(
     Input("page-2-badge-lipid-2", "children"),
     Input("page-2-badge-lipid-3", "children"),
 )
-def page_2_active_download(lipid_1_index, lipid_2_index, lipid_3_index):
+def page_2_active_color_buttons(header_1, header_2, header_3):
     """This callback is used to toggle on/off the display rgb and colormap buttons."""
 
     logging.info("Entering function to toggle on/off the display rgb and colormap buttons")
 
-    logging.info("Lipid indexes are: " + str(lipid_1_index) + " " + str(lipid_2_index) + " " + str(lipid_3_index))
+    logging.info("Lipid indexes are: " + str(header_1) + " " + str(header_2) + " " + str(header_3))
 
     # Get the current lipid selection
-    l_lipids_indexes = [
-        x for x in [lipid_1_index, lipid_2_index, lipid_3_index] if x is not None and x != -1
-    ]
+    l_lipids_indexes = [x for x in [header_1, header_2, header_3] if x is not None and x != ""]
+
     # If lipids has been selected from the dropdown, activate button
-    if len(l_lipids_indexes) > 0:
+    if len(l_lipids_indexes) == 1:
         return False, False
+    elif len(l_lipids_indexes) > 1:
+        return False, True
     else:
         return True, True
+
+@app.callback(
+    Output("page-2-drawer-graph-section", "is_open"),
+    Output("page-2-main-slider-local", "data"),
+    Input('page-2-graph-lipid-selection', 'clickData'),
+    Input("page-2-close-drawer-graph-section", "n_clicks"),
+    Input("page-2-main-slider-remote", "data"),
+    [State("page-2-drawer-graph-section", "is_open")],
+)
+def toggle_offcanvas(clickData, n2, slice_index, is_open):
+    """This callback is used to open the drawer containing the lipid expression analysis of the
+    selected region."""
+
+    input_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    if input_id == "page-2-main-slider-remote":
+        return is_open, slice_index
+
+    if clickData is not None:
+        # Click data contains information about where the click occurred
+        point = clickData['points'][0]
+        trace_index = point['curveNumber']  # This corresponds to the subplot number
+        slice_index = trace_index + 1
+        logging.info(f"Clicked on subplot {slice_index}")
+        return not is_open, slice_index
+    elif n2:
+        return not is_open, slice_index
+    return is_open, slice_index
+
+@app.callback(
+    Output("page-2-graph-lipid-selection-drawer", "figure"),
+    Input("page-2-main-slider-local", "data"),
+    Input("page-2-badge-lipid-1", "children"),
+    Input("page-2-badge-lipid-2", "children"),
+    Input("page-2-badge-lipid-3", "children"),
+    Input("page-2-rgb-button", "n_clicks"),
+    Input("page-2-colormap-button", "n_clicks"),
+    State("page-2-badge-input", "children"),
+    [State("page-2-drawer-graph-section", "is_open")],
+    prevent_initial_call=True,
+)
+def page_2_plot_graph_heatmap_selection_drawer(
+    slice_index,
+    header_1,
+    header_2,
+    header_3,
+    n_clicks_button_rgb,
+    n_clicks_button_colormap,
+    graph_input,
+    is_open,
+):
+    """This callback plots the heatmap of the selected lipid(s) in the drawer."""
+
+    if not is_open:
+        return dash.no_update
+
+    logging.info("Entering function to plot heatmap or RGB depending on lipid selection")
+
+    # Find out which input triggered the function
+    id_input = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    # If a lipid selection has been done
+    if (
+        id_input == "page-2-badge-lipid-1"
+        or id_input == "page-2-badge-lipid-2"
+        or id_input == "page-2-badge-lipid-3"
+        or id_input == "page-2-rgb-button"
+        or id_input == "page-2-colormap-button"
+        or (
+            (id_input == "page-2-main-slider-local")
+            and (
+                graph_input == "Current input: " + "Lipid selection colormap"
+                or graph_input == "Current input: " + "Lipid selection RGB"
+                or graph_input == "Current input: " + "None"
+            )
+        )
+    ):  
+        l_lipid_names = [header_1, header_2, header_3]
+
+        if l_lipid_names == ["", "", ""]:
+            return figures.compute_grey_image_per_slice(slice_index=slice_index)
+
+        if (
+            id_input == "page-2-badge-lipid-1"
+            or id_input == "page-2-badge-lipid-2"
+            or id_input == "page-2-badge-lipid-3"
+        ):
+            
+            if (
+                graph_input == "Current input: " + "Lipid selection colormap"
+            ):
+                return figures.compute_heatmap_per_lipid_selection(
+                    slice_index,
+                    l_lipid_names=l_lipid_names
+                    )
+            
+            else:
+                return figures.compute_rgb_image_per_lipid_selection(
+                    slice_index,
+                    l_lipid_names=l_lipid_names
+                    )
+
+        # Check if the current plot must be a heatmap
+        elif (
+            id_input == "page-2-colormap-button"
+            or (
+                id_input == "page-2-main-slider-local"
+                and graph_input == "Current input: " + "Lipid selection colormap"
+            )
+        ):
+            return figures.compute_heatmap_per_lipid_selection(
+                slice_index,
+                l_lipid_names=l_lipid_names
+                )
+
+        # Or if the current plot must be an RGB image
+        elif (
+            id_input == "page-2-rgb-button"
+            or (
+                id_input == "page-2-main-slider-local"
+                and graph_input == "Current input: " + "Lipid selection RGB"
+            )
+        ):
+            return figures.compute_rgb_image_per_lipid_selection(
+                slice_index,
+                l_lipid_names=l_lipid_names
+                )
+
+        # Plot grey image by default
+        else:
+            logging.info("Right before calling the graphing function")
+            return figures.compute_grey_image_per_slice(slice_index=slice_index),
+
+    # If no trigger, the page has just been loaded, so load new figure with default parameters
+    return dash.no_update

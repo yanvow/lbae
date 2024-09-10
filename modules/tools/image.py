@@ -112,6 +112,26 @@ def convert_image_to_base64(
         )
         pil_img = pil_img.resize((x2, y2), Image.ANTIALIAS)
         logging.info("Resolution has been decreased")
+    elif decrease_resolution_factor < 1:
+        x, y = pil_img.size
+        x2, y2 = (
+            int(round(x / decrease_resolution_factor)),
+            int(round(y / decrease_resolution_factor)),
+        )
+
+        # Create a blank (black) image of the new larger size
+        new_img = Image.new("RGB", (x2, y2), (0, 0, 0))  # Black background
+        
+        # Calculate the top-left coordinates to center the original image
+        start_x = (x2 - x) // 2
+        start_y = (y2 - y) // 2
+
+        # Paste the original image in the center of the new larger image
+        new_img.paste(pil_img, (start_x, start_y))
+
+        pil_img = new_img
+        logging.info("Resolution has been increased and original image centered")
+
 
     if transparent_zeros:
         # Takes ~5 ms but makes output much nicer

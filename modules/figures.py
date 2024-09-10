@@ -903,6 +903,65 @@ class Figures:
         logging.info("Returning figure")
 
         return fig
+    
+    def compute_grey_image_grouped(
+        self,
+    ):
+        """This function computes and returns a grey image representing the slice slice_index.
+
+        Args:
+            slice_index (int): Index of the requested slice.
+            cache_flask (flask_caching.Cache, optional): Cache of the Flask database. If set to
+                None, the reading of memory-mapped data will not be multithreads-safe. Defaults to
+                None.
+
+        Returns:
+            (np.ndarray): A grey image (in the form of a numpy array) representing the slice
+                slice_index.
+        """
+        logging.info("Converting image to string")
+
+        slice_number = 3
+
+        # Create a subplot figure with 1 row and 3 columns
+        fig = make_subplots(rows=1, cols=slice_number)
+
+        for slice_index in range(1, slice_number + 1):
+
+            xx = self._data.get_lipizones_section_array(slice_index)
+
+            xx = xx[::2, ::2]
+
+            source = convert_image_to_base64(
+                xx, 
+                type="RGBA", 
+                overlay=None, 
+                transparent_zeros=True, 
+                optimize=False,
+            )
+
+            # Plot the arrays using go.Image and adding them to the subplot figure
+            fig.add_trace(go.Image(source=source), row=1, col=slice_index)
+        
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update(layout_coloraxis_showscale=False)
+
+        fig.update_xaxes(showgrid=False, zeroline=False)
+        fig.update_yaxes(showgrid=False, zeroline=False)
+
+        #remove possibility to zoom
+        #fig.update_xaxes(fixedrange=True)
+        #fig.update_yaxes(fixedrange=True)
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+
+        logging.info("Returning figure")
+
+        return fig
 
     def compute_grey_image_per_slice(
         self,
@@ -929,7 +988,8 @@ class Figures:
             type="RGBA", 
             overlay=None, 
             transparent_zeros=True, 
-            optimize=False
+            optimize=False,
+            decrease_resolution_factor=0.5,
         )
 
         final_image = go.Image(source=source)
@@ -948,8 +1008,6 @@ class Figures:
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)
         fig.update(layout_coloraxis_showscale=False)
-        
-        fig.update_layout(dragmode="drawclosedpath")
 
         # Set background color to zero
         fig.layout.template = "plotly_dark"
@@ -1132,6 +1190,69 @@ class Figures:
         )
 
         return fig
+    
+    def compute_heatmap_grouped(
+        self,
+        l_lipid_names=None,
+    ):
+        """This function computes and returns a heatmap of the sum of expression of the requested
+
+        Args:
+            l_lipid_names (list(list(int)), optional): List lipid names. Defaults to None.
+
+        Returns:
+            (go.Figure): A Plotly figure representing the requested grouped image of the requested
+                type.
+        """
+        slice_number = 3
+
+        logging.info("Grouped Lipid Names: " + str(l_lipid_names))
+
+        # only keep the lipid names that are not empty
+        lipid_name = [lipid_name for lipid_name in l_lipid_names if lipid_name != ""][0]
+
+        # Create a subplot figure with 1 row and 3 columns
+        fig = make_subplots(rows=1, cols=slice_number)
+
+        for slice_index in range(1, slice_number + 1):
+
+            xx = np.zeros((459, 655, 4), dtype=np.uint8)
+
+            lipid_array = self._data.get_lipid_plasma_array(slice_index)[f"{slice_index}_{lipid_name}"]
+
+            xx += lipid_array
+            
+            xx = xx[::2, ::2, :]
+
+            source = convert_image_to_base64(
+                xx, 
+                type="RGBA", 
+                overlay=None, 
+                transparent_zeros=True, 
+                optimize=False,
+            )
+
+            # Plot the arrays using go.Image and adding them to the subplot figure
+            fig.add_trace(go.Image(source=source), row=1, col=slice_index)
+        
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update(layout_coloraxis_showscale=False)
+
+        fig.update_xaxes(showgrid=False, zeroline=False)
+        fig.update_yaxes(showgrid=False, zeroline=False)
+
+        #remove possibility to zoom
+        #fig.update_xaxes(fixedrange=True)
+        #fig.update_yaxes(fixedrange=True)
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+
+        logging.info("Returning figure")
+
 
     def compute_heatmap_per_lipid_selection(
         self,
@@ -1166,21 +1287,22 @@ class Figures:
         """
         logging.info("Converting image to string")
 
-        xx = np.zeros((918, 1311, 4), dtype=np.uint8)
+        xx = np.zeros((459, 655, 4), dtype=np.uint8)
 
-        for lipid_name in l_lipid_names:
+        # only keep the lipid names that are not empty
+        lipid_name = [lipid_name for lipid_name in l_lipid_names if lipid_name != ""][0]
 
-            if lipid_name != "":
-                lipid_array = self._data.get_lipid_plasma_array(slice_index)[f"{slice_index}_{lipid_name}"]
+        lipid_array = self._data.get_lipid_plasma_array(slice_index)[f"{slice_index}_{lipid_name}"]
             
-                xx += lipid_array
+        xx += lipid_array
 
         source = convert_image_to_base64(
             xx, 
             type="RGBA", 
             overlay=None, 
             transparent_zeros=True, 
-            optimize=False
+            optimize=False,
+            decrease_resolution_factor=0.5,
         )
 
         final_image = go.Image(source=source)
@@ -1199,8 +1321,6 @@ class Figures:
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)
         fig.update(layout_coloraxis_showscale=False)
-        
-        fig.update_layout(dragmode="drawclosedpath")
 
         # Set background color to zero
         fig.layout.template = "plotly_dark"
@@ -1286,6 +1406,73 @@ class Figures:
         array_image = np.moveaxis(np.array(l_images), 0, 2)
 
         return np.asarray(array_image, dtype=np.uint8)
+    
+    def compute_rgb_image_grouped(
+        self,
+        l_lipid_names=None,
+    ):
+        """This function computes and returns a RGB image representing the slice slice_index.
+
+        Args:
+            slice_index (int): Index of the requested slice.
+            cache_flask (flask_caching.Cache, optional): Cache of the Flask database. If set to
+                None, the reading of memory-mapped data will not be multithreads-safe. Defaults to
+                None.
+
+        Returns:
+            (np.ndarray): A RGB image (in the form of a numpy array) representing the slice
+                slice_index.
+        """
+
+        logging.info("Grouped Lipid Names: " + str(l_lipid_names))
+            
+        slice_number = 3
+
+        # Create a subplot figure with 1 row and 3 columns
+        fig = make_subplots(rows=1, cols=slice_number)
+
+        for slice_index in range(1, slice_number + 1):
+
+            xx = np.zeros((459, 655, 3), dtype=np.uint8)
+
+            for index, lipid_name in enumerate(l_lipid_names):
+
+                if lipid_name != "":
+                    lipid_array = self._data.get_lipid_green_array(slice_index)[f"{slice_index}_{lipid_name}"]
+                    xx[:, :, index] += lipid_array
+                
+            xx = xx[::2, ::2]
+
+            source = convert_image_to_base64(
+                xx, 
+                type="RGB", 
+                overlay=None, 
+                transparent_zeros=True, 
+                optimize=False,
+            )
+
+            # Plot the arrays using go.Image and adding them to the subplot figure
+            fig.add_trace(go.Image(source=source), row=1, col=slice_index)
+        
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+        fig.update(layout_coloraxis_showscale=False)
+
+        fig.update_xaxes(showgrid=False, zeroline=False)
+        fig.update_yaxes(showgrid=False, zeroline=False)
+
+        #remove possibility to zoom
+        #fig.update_xaxes(fixedrange=True)
+        #fig.update_yaxes(fixedrange=True)
+
+        # Set background color to zero
+        fig.layout.template = "plotly_dark"
+        fig.layout.plot_bgcolor = "rgba(0,0,0,0)"
+        fig.layout.paper_bgcolor = "rgba(0,0,0,0)"
+
+        logging.info("Returning figure")
+
+        return fig
 
     def compute_rgb_image_per_lipid_selection(
         self,
@@ -1322,7 +1509,7 @@ class Figures:
                 a Plotly Figure.
         """
 
-        xx = np.zeros((918, 1311, 3), dtype=np.uint8)
+        xx = np.zeros((459, 655, 3), dtype=np.uint8)
 
         for index, lipid_name in enumerate(l_lipid_names):
 
@@ -1335,7 +1522,8 @@ class Figures:
             type="RGB", 
             overlay=None,
             transparent_zeros=True, 
-            optimize=False
+            optimize=False,
+            decrease_resolution_factor=0.5,
         )
 
         final_image = go.Image(source=source)
@@ -1354,8 +1542,6 @@ class Figures:
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)
         fig.update(layout_coloraxis_showscale=False)
-        
-        fig.update_layout(dragmode="drawclosedpath")
 
         # Set background color to zero
         fig.layout.template = "plotly_dark"

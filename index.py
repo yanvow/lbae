@@ -17,6 +17,7 @@ from dash.dependencies import Input, Output, State
 import uuid
 import logging
 import dash_mantine_components as dmc
+import dash
 
 # LBAE modules
 from app import app, data, atlas
@@ -61,6 +62,9 @@ def return_main_content():
             dcc.Store(id="session-id", data=session_id),
             # Record the slider index
             dcc.Store(id="main-slider", data=1),
+            dcc.Store(id="main-slider-client", data=1),
+            dcc.Store(id="page-2-main-slider-local", data=1),
+            dcc.Store(id="page-2-main-slider-remote", data=1),
             # Record the state of the range sliders for low and high resolution spectra in page 2
             dcc.Store(id="boundaries-low-resolution-mz-plot"),
             dcc.Store(id="boundaries-high-resolution-mz-plot"),
@@ -348,18 +352,17 @@ def hide_slider_but_leave_brain(pathname):
     Output("main-slider-1", "value"),
     Output("main-slider-2", "value"),
     Input("main-brain", "value"),
+    Input("main-slider", "data"),
     State("main-slider-1", "value"),
     State("main-slider-2", "value"),
     prevent_initial_call=False,
 )
-def hide_useless_slider(brain, value_1, value_2):
+def hide_useless_slider(brain, slider, value_1, value_2):
     """This callback is used to update the slider indices with the selected brain."""
     if brain == "brain_1":
-        value_1 = value_2 - data.get_slice_list(indices="brain_1")[-1]
-        return "mt-2 mr-5 ml-2 mb-1 w-50", "mt-2 mr-5 ml-2 mb-1 w-50 d-none", value_1, value_2
+        return "mt-2 mr-5 ml-2 mb-1 w-50", "mt-2 mr-5 ml-2 mb-1 w-50 d-none", slider, value_2
     elif brain == "brain_2":
-        value_2 = value_1 + data.get_slice_list(indices="brain_1")[-1]
-        return "mt-2 mr-5 ml-2 mb-1 w-50 d-none", "mt-2 mr-5 ml-2 mb-1 w-50", value_1, value_2
+        return "mt-2 mr-5 ml-2 mb-1 w-50 d-none", "mt-2 mr-5 ml-2 mb-1 w-50", value_1, slider
     else:
         return "mt-2 mr-5 ml-2 mb-1 w-50", "mt-2 mr-5 ml-2 mb-1 w-50 d-none", value_1, value_2
 
@@ -375,9 +378,39 @@ app.clientside_callback(
             }
     }
     """,
-    Output("main-slider", "data"),
+    Output("main-slider-client", "data"),
     Input("main-slider-1", "value"),
     Input("main-slider-2", "value"),
     State("main-brain", "value"),
 )
 """This clientside callback is used to update the slider indices with the selected brain."""
+
+@app.callback(
+    Output("page-2-main-slider-remote", "data"),
+    Input("main-slider", "data"),
+    Input("page-2-main-slider-local", "data"),
+)
+def update_remote_main_sliders(global_brain, local_brain_2):
+    """This callback is used to update the slider indices with the selected brain."""
+    
+    input_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    if input_id == "main-slider":
+        return global_brain
+    elif input_id == "page-2-main-slider-local":
+        return local_brain_2
+
+@app.callback(
+    Output("main-slider", "data"),
+    Input("main-slider-client", "data"),
+    Input("page-2-main-slider-remote", "data"),
+)
+def update_remote_main_sliders(client_brain, remote_brain_2):
+    """This callback is used to update the slider indices with the selected brain."""
+    
+    input_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+
+    if input_id == "main-slider-client":
+        return client_brain
+    elif input_id == "page-2-main-slider-remote":
+        return remote_brain_2
